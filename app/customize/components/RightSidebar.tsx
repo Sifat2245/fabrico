@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, ShoppingBag, Heart, Info, Sliders, Play } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
 import { useStudio, PrintZone, ProductSize } from "./StudioContext";
 import { useCart } from "@/lib/cart-context";
 import { featuredProducts } from "@/data/products";
@@ -69,8 +70,16 @@ export function RightSidebar() {
         {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
       </button>
 
-      {!isCollapsed && (
-        <div className="w-[280px] flex-shrink-0 border-l border-stone-200 bg-white flex flex-col h-full overflow-hidden select-none">
+      <AnimatePresence initial={false}>
+        {!isCollapsed && (
+          <motion.div
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 280, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ type: "tween", duration: 0.2, ease: "easeInOut" }}
+            className="flex-shrink-0 overflow-hidden"
+          >
+          <div className="w-[280px] border-l border-stone-200 bg-white flex flex-col h-full overflow-hidden select-none">
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
             
             {/* Active Apparel Swap */}
@@ -257,8 +266,10 @@ export function RightSidebar() {
               Add Design to Cart
             </button>
           </div>
-        </div>
-      )}
+          </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

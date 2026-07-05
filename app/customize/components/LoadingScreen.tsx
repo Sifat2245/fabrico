@@ -78,14 +78,14 @@ export function LoadingScreen({ onComplete, isLoading }: LoadingScreenProps) {
         <motion.div
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.8, ease: [0.65, 0, 0.35, 1] } }}
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-stone-950 text-white font-body"
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-stone-50 text-stone-950 font-body"
         >
           {/* Subtle noise/grid texture */}
           <div
             className="absolute inset-0 opacity-[0.02] pointer-events-none"
             style={{
               backgroundImage:
-                "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+                "radial-gradient(circle at 1px 1px, #292524 1px, transparent 0)",
               backgroundSize: "32px 32px",
             }}
           />
@@ -99,13 +99,13 @@ export function LoadingScreen({ onComplete, isLoading }: LoadingScreenProps) {
                 transition={{ duration: 1, ease: "easeOut" }}
                 className="flex items-center gap-2 mb-2"
               >
-                <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-white text-stone-950 font-display font-black text-2xl tracking-tighter shadow-xl shadow-white/5">
+                <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-stone-950 text-white font-display font-black text-2xl tracking-tighter shadow-xl shadow-black/5">
                   F
                 </div>
-                <span className="font-display text-4xl font-extrabold tracking-tight text-white">
+                <span className="font-display text-4xl font-extrabold tracking-tight text-stone-950">
                   Fabrico
                 </span>
-                <span className="text-[10px] font-semibold text-stone-500 uppercase tracking-widest border border-stone-800 rounded px-1.5 py-0.5 ml-2">
+                <span className="text-[10px] font-semibold text-stone-400 uppercase tracking-widest border border-stone-300 rounded px-1.5 py-0.5 ml-2">
                   v1.0
                 </span>
               </motion.div>
@@ -113,16 +113,15 @@ export function LoadingScreen({ onComplete, isLoading }: LoadingScreenProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 0.4 }}
                 transition={{ delay: 0.4, duration: 1 }}
-                className="text-xs tracking-widest uppercase text-stone-300 font-medium"
+                className="text-xs tracking-widest uppercase text-stone-400 font-medium"
               >
                 Interactive Design Atelier
               </motion.p>
             </div>
 
-            {/* Progress Bar Container */}
-            <div className="relative h-1 w-full bg-stone-900 rounded-full overflow-hidden mb-8">
+            {/* Progress Bar Container */}              <div className="relative h-1 w-full bg-stone-200 rounded-full overflow-hidden mb-8">
               <motion.div
-                className="absolute inset-y-0 left-0 bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.6)]"
+                className="absolute inset-y-0 left-0 bg-stone-950 rounded-full shadow-[0_0_8px_rgba(41,37,36,0.3)]"
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 0.1, ease: "easeOut" }}
               />
@@ -137,9 +136,9 @@ export function LoadingScreen({ onComplete, isLoading }: LoadingScreenProps) {
                   animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                   exit={{ opacity: 0, y: -10, filter: "blur(2px)" }}
                   transition={{ duration: 0.3 }}
-                  className="flex items-center gap-2 text-sm text-stone-400 font-medium tracking-wide"
+                  className="flex items-center gap-2 text-sm text-stone-500 font-medium tracking-wide"
                 >
-                  <StepIcon className="h-4 w-4 text-stone-500 animate-pulse" />
+                  <StepIcon className="h-4 w-4 text-stone-400 animate-pulse" />
                   {activeStep.message}
                 </motion.div>
               </AnimatePresence>
@@ -148,7 +147,7 @@ export function LoadingScreen({ onComplete, isLoading }: LoadingScreenProps) {
             {/* Percentage Indicator */}
             <motion.span
               animate={{ opacity: isDone ? 1 : 0.6 }}
-              className="block mt-16 font-mono text-xs text-stone-500 tracking-wider"
+              className="block mt-16 font-mono text-xs text-stone-400 tracking-wider"
             >
               {Math.min(Math.round(progress), 100)}%
             </motion.span>
