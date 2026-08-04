@@ -1,0 +1,290 @@
+[
+    {
+        "index": 0,
+        "name": "Pattern2D_2949190.Knit_Fleece_Terry_FRONT_109192",
+        "material": "Knit_Fleece_Terry_FRONT_109192",
+        "vertices": 1118,
+        "triangles": 2033
+    },
+    {
+        "index": 1,
+        "name": "Pattern2D_2949190.Knit_Fleece_Terry_FRONT_109192_0",
+        "material": "Knit_Fleece_Terry_FRONT_109192_0",
+        "vertices": 1118,
+        "triangles": 2033
+    },
+    {
+        "index": 2,
+        "name": "Pattern2D_2949190.Knit_Fleece_Terry_FRONT_109192_1",
+        "material": "Knit_Fleece_Terry_FRONT_109192_1",
+        "vertices": 2665,
+        "triangles": 4824
+    },
+    {
+        "index": 3,
+        "name": "30_Knit_Fleece_Terry_FRONT_109192_0",
+        "material": "Knit_Fleece_Terry_FRONT_109192_2",
+        "vertices": 1131,
+        "triangles": 2059
+    },
+    {
+        "index": 4,
+        "name": "30_Knit_Fleece_Terry_FRONT_109192_1",
+        "material": "Knit_Fleece_Terry_FRONT_109192_3",
+        "vertices": 1131,
+        "triangles": 2059
+    },
+    {
+        "index": 5,
+        "name": "30_Knit_Fleece_Terry_FRONT_109192_2",
+        "material": "Knit_Fleece_Terry_FRONT_109192_4",
+        "vertices": 2665,
+        "triangles": 4824
+    },
+    {
+        "index": 6,
+        "name": "31_Knit_Fleece_Terry_FRONT_109192_0",
+        "material": "Knit_Fleece_Terry_FRONT_109192_5",
+        "vertices": 5937,
+        "triangles": 11426
+    },
+    {
+        "index": 7,
+        "name": "31_Knit_Fleece_Terry_FRONT_109192_1",
+        "material": "Knit_Fleece_Terry_FRONT_109192_6",
+        "vertices": 5937,
+        "triangles": 11426
+    },
+    {
+        "index": 8,
+        "name": "31_Knit_Fleece_Terry_FRONT_109192_2",
+        "material": "Knit_Fleece_Terry_FRONT_109192_7",
+        "vertices": 3458,
+        "triangles": 6240
+    },
+    {
+        "index": 9,
+        "name": "64_Knit_Fleece_Terry_FRONT_109192_0",
+        "material": "Knit_Fleece_Terry_FRONT_109192_8",
+        "material": "Knit_Fleece_Terry_FRONT_109192_8",
+        "vertices": 5967,
+        "triangles": 11484
+    },
+    {
+        "index": 10,
+        "name": "64_Knit_Fleece_Terry_FRONT_109192_1",
+        "material": "Knit_Fleece_Terry_FRONT_109192_9",
+        "vertices": 5967,
+        "triangles": 11484
+    },
+    {
+        "index": 11,
+        "name": "64_Knit_Fleece_Terry_FRONT_109192_2",
+        "material": "Knit_Fleece_Terry_FRONT_109192_10",
+        "vertices": 3484,
+        "triangles": 6288
+    },
+    {
+        "index": 12,
+        "name": "70_Knit_Fleece_Terry_FRONT_109192_0",
+        "material": "Knit_Fleece_Terry_FRONT_109192_11",
+        "vertices": 25702,
+        "triangles": 50676
+    },
+    {
+        "index": 13,
+        "name": "70_Knit_Fleece_Terry_FRONT_109192_1",
+        "material": "Knit_Fleece_Terry_FRONT_109192_12",
+        "vertices": 25702,
+        "triangles": 50676
+    },
+    {
+        "index": 14,
+        "name": "70_Knit_Fleece_Terry_FRONT_109192_2",
+        "material": "Knit_Fleece_Terry_FRONT_109192_13",
+        "vertices": 6695,
+        "triangles": 12048
+    },
+    {
+        "index": 15,
+        "name": "71_Knit_Fleece_Terry_Copy_1_FRONT_10",
+        "material": "Knit_Fleece_Terry_Copy_1_FRONT_10",
+        "vertices": 347,
+        "triangles": 599
+    },
+    {
+        "index": 16,
+        "name": "71_Knit_Fleece_Terry_Copy_1_FRONT_10_0",
+        "material": "Knit_Fleece_Terry_Copy_1_FRONT_10_0",
+        "vertices": 347,
+        "triangles": 599
+    },
+    {
+        "index": 17,
+        "name": "71_Knit_Fleece_Terry_Copy_1_FRONT_10_1",
+        "material": "Knit_Fleece_Terry_Copy_1_FRONT_10_1",
+        "vertices": 1331,
+        "triangles": 1488
+    },
+    {
+        "index": 18,
+        "name": "28_Knit_Fleece_Terry_FRONT_109192_0",
+        "material": "Knit_Fleece_Terry_FRONT_109192_14",
+        "vertices": 26079,
+        "triangles": 53213
+    },
+    {
+        "index": 19,
+        "name": "28_Knit_Fleece_Terry_FRONT_109192_1",
+        "material": "Knit_Fleece_Terry_FRONT_109192_15",
+        "vertices": 26079,
+        "triangles": 53213
+    },
+    {
+        "index": 20,
+        "name": "28_Knit_Fleece_Terry_FRONT_109192_2",
+        "material": "Knit_Fleece_Terry_FRONT_109192_16",
+        "vertices": 6929,
+        "triangles": 12456
+    },
+    {
+        "index": 21,
+        "name": "29_Knit_Fleece_Terry_Copy_1_FRONT_10",
+        "material": "Knit_Fleece_Terry_Copy_1_FRONT_10",
+        "vertices": 343,
+        "triangles": 590
+    },
+    {
+        "index": 22,
+        "name": "29_Knit_Fleece_Terry_Copy_1_FRONT_10_0",
+        "material": "Knit_Fleece_Terry_Copy_1_FRONT_10_0",
+        "vertices": 343,
+        "triangles": 590
+    },
+    {
+        "index": 23,
+        "name": "29_Knit_Fleece_Terry_Copy_1_FRONT_10_1",
+        "material": "Knit_Fleece_Terry_Copy_1_FRONT_10_1",
+        "vertices": 1348,
+        "triangles": 1504
+    },
+    {
+        "index": 24,
+        "name": "Pattern2D_4474558.Knit_Fleece_Ter...",
+        "material": "Knit_Fleece_Terry_Copy_1_FRONT_10",
+        "vertices": 1292,
+        "triangles": 2343
+    },
+    {
+        "index": 25,
+        "name": "Pattern2D_4474558.Knit_Fleece_Ter...",
+        "material": "Knit_Fleece_Terry_Copy_1_FRONT_10_0",
+        "vertices": 1292,
+        "triangles": 2343
+    },
+    {
+        "index": 26,
+        "name": "Pattern2D_4474558.Knit_Fleece_Ter...",
+        "material": "Knit_Fleece_Terry_Copy_1_FRONT_10_1",
+        "vertices": 3172,
+        "triangles": 5736
+    },
+    {
+        "index": 27,
+        "name": "Pattern2D_4491756.Knit_Fleece_Ter...",
+        "material": "Knit_Fleece_Terry_Copy_1_FRONT_10",
+        "vertices": 1345,
+        "triangles": 2451
+    },
+    {
+        "index": 28,
+        "name": "Pattern2D_4491756.Knit_Fleece_Ter...",
+        "material": "Knit_Fleece_Terry_Copy_1_FRONT_10_0",
+        "vertices": 1345,
+        "triangles": 2451
+    },
+    {
+        "index": 29,
+        "name": "Pattern2D_4491756.Knit_Fleece_Ter...",
+        "material": "Knit_Fleece_Terry_Copy_1_FRONT_10_1",
+        "vertices": 3146,
+        "triangles": 5688
+    },
+    {
+        "index": 30,
+        "name": "StitchMatShape_127574.Material109",
+        "material": "Material109415",
+        "vertices": 65532,
+        "triangles": 112508
+    },
+    {
+        "index": 31,
+        "name": "StitchMatShape_127574.Material109_0",
+        "material": "Material109415_0",
+        "vertices": 5591,
+        "triangles": 9432
+    },
+    {
+        "index": 32,
+        "name": "StitchMatShape_128590.Material109",
+        "material": "Material109415_1",
+        "vertices": 65532,
+        "triangles": 112508
+    },
+    {
+        "index": 33,
+        "name": "StitchMatShape_128590.Material109_0",
+        "material": "Material109415_2",
+        "vertices": 5591,
+        "triangles": 9432
+    },
+    {
+        "index": 34,
+        "name": "StitchMatShape_129132.Material109",
+        "material": "Material109415_3",
+        "vertices": 37524,
+        "triangles": 64428
+    },
+    {
+        "index": 35,
+        "name": "StitchMatShape_129132.Material109_0",
+        "material": "Material109415_4",
+        "vertices": 65532,
+        "triangles": 112508
+    },
+    {
+        "index": 36,
+        "name": "StitchMatShape_130377.Material109",
+        "material": "Material109415_5",
+        "vertices": 22037,
+        "triangles": 37824
+    },
+    {
+        "index": 37,
+        "name": "StitchMatShape_130648.Material109",
+        "material": "Material109415_6",
+        "vertices": 18020,
+        "triangles": 30930
+    },
+    {
+        "index": 38,
+        "name": "StitchMatShape_130909.Material109",
+        "material": "Material109415_7",
+        "vertices": 18007,
+        "triangles": 30930
+    },
+    {
+        "index": 39,
+        "name": "StitchMatShape_132157.Material109",
+        "material": "Material109415_8",
+        "vertices": 65532,
+        "triangles": 112508
+    },
+    {
+        "index": 40,
+        "name": "StitchMatShape_132157.Material109_0",
+        "material": "Material109415_9",
+        "vertices": 22449,
+        "triangles": 38188
+    }
+]

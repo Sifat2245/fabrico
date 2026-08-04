@@ -22,8 +22,9 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${playfairDisplay.variable} ${dmSans.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col font-body">
+      <body className="min-h-full flex flex-col font-body" suppressHydrationWarning>
         <CartProvider>
           {children}
         </CartProvider>
