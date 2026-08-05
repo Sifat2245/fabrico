@@ -62,14 +62,14 @@ export default function CheckoutSummaryPanel({
   };
 
   return (
-    <aside className="w-72 h-full bg-white border-l border-zinc-200 flex flex-col shrink-0 shadow-sm font-sans select-none z-30">
+    <aside className="w-72 h-full bg-[#0e0e12] border-l border-zinc-800 flex flex-col shrink-0 shadow-2xl font-sans select-none z-30">
       {/* Panel Title Header */}
-      <div className="p-4 border-b border-zinc-150 bg-zinc-50/50 flex items-center justify-between">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-500">Order Summary</h2>
+      <div className="p-4 border-b border-zinc-800 bg-[#0b0b0d] flex items-center justify-between">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-indigo-400">Order Summary</h2>
         {onClose && (
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-all lg:hidden"
+            className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/60 transition-all lg:hidden"
             title="Close summary"
           >
             <X className="w-4 h-4" />
@@ -81,27 +81,27 @@ export default function CheckoutSummaryPanel({
         {/* Specifications */}
         <div className="space-y-2">
           <h3 className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Specifications</h3>
-          <div className="space-y-1.5 bg-zinc-50 rounded-xl p-3 border border-zinc-200/40 text-xs">
+          <div className="space-y-1.5 bg-[#16161c] rounded-xl p-3 border border-zinc-800/80 text-xs">
             <div className="flex justify-between">
-              <span className="text-zinc-500">Apparel Type</span>
-              <span className="font-semibold text-zinc-800">Modern T-Shirt</span>
+              <span className="text-zinc-500 font-medium">Apparel Type</span>
+              <span className="font-semibold text-zinc-200">Modern T-Shirt</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-zinc-500">Collar Style</span>
-              <span className="font-semibold text-zinc-800 capitalize">{customizerState.collarType}</span>
+              <span className="text-zinc-500 font-medium">Collar Style</span>
+              <span className="font-semibold text-zinc-200 capitalize">{customizerState.collarType}</span>
             </div>
             {customizerState.zipper && (
               <div className="flex justify-between">
-                <span className="text-zinc-500">Zipper Detail</span>
-                <span className="font-semibold text-zinc-800">Front Zipper</span>
+                <span className="text-zinc-500 font-medium">Zipper Detail</span>
+                <span className="font-semibold text-zinc-200">Front Zipper</span>
               </div>
             )}
             {customizerState.primaryColorSide === 'Both' || !customizerState.primaryColorSide ? (
               <div className="flex justify-between">
-                <span className="text-zinc-500">Base Color</span>
-                <span className="font-semibold text-zinc-800 flex items-center gap-1.5">
+                <span className="text-zinc-500 font-medium">Base Color</span>
+                <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
                   <span
-                    className="w-3 h-3 rounded-full border border-zinc-300"
+                    className="w-3 h-3 rounded-full border border-zinc-800 shadow-sm"
                     style={{ backgroundColor: customizerState.primary }}
                   />
                   <span className="uppercase text-[10px] font-mono">{customizerState.primary}</span>
@@ -110,20 +110,20 @@ export default function CheckoutSummaryPanel({
             ) : (
               <>
                 <div className="flex justify-between">
-                  <span className="text-zinc-500">Front Color</span>
-                  <span className="font-semibold text-zinc-800 flex items-center gap-1.5">
+                  <span className="text-zinc-500 font-medium">Front Color</span>
+                  <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
                     <span
-                      className="w-3 h-3 rounded-full border border-zinc-300"
+                      className="w-3 h-3 rounded-full border border-zinc-800 shadow-sm"
                       style={{ backgroundColor: customizerState.primaryFront || customizerState.primary }}
                     />
                     <span className="uppercase text-[10px] font-mono">{customizerState.primaryFront || customizerState.primary}</span>
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-zinc-500">Back Color</span>
-                  <span className="font-semibold text-zinc-800 flex items-center gap-1.5">
+                  <span className="text-zinc-500 font-medium">Back Color</span>
+                  <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
                     <span
-                      className="w-3 h-3 rounded-full border border-zinc-300"
+                      className="w-3 h-3 rounded-full border border-zinc-800 shadow-sm"
                       style={{ backgroundColor: customizerState.primaryBack || customizerState.primary }}
                     />
                     <span className="uppercase text-[10px] font-mono">{customizerState.primaryBack || customizerState.primary}</span>
@@ -133,13 +133,13 @@ export default function CheckoutSummaryPanel({
             )}
             {customizerState.designPattern && customizerState.designPattern !== 'plain' && (
               <div className="flex justify-between">
-                <span className="text-zinc-500">Body Pattern</span>
-                <span className="font-semibold text-zinc-800 capitalize">{customizerState.designPattern}</span>
+                <span className="text-zinc-500 font-medium">Body Pattern</span>
+                <span className="font-semibold text-zinc-200 capitalize">{customizerState.designPattern}</span>
               </div>
             )}
             <div className="flex justify-between">
-              <span className="text-zinc-500">Custom Decals</span>
-              <span className="font-semibold text-zinc-800">{decalsCount} placed</span>
+              <span className="text-zinc-500 font-medium">Custom Decals</span>
+              <span className="font-semibold text-zinc-200">{decalsCount} placed</span>
             </div>
           </div>
         </div>
@@ -148,17 +148,17 @@ export default function CheckoutSummaryPanel({
         {decalsCount > 0 && (
           <div className="space-y-2">
             <h3 className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Custom Layers</h3>
-            <div className="space-y-1.5 bg-zinc-50 rounded-xl p-3 border border-zinc-200/40 text-[11px] max-h-32 overflow-y-auto">
+            <div className="space-y-1.5 bg-[#16161c] rounded-xl p-3 border border-zinc-800/80 text-[11px] max-h-32 overflow-y-auto">
               {customizerState.textLayers.map((layer) => (
-                <div key={layer.id} className="flex justify-between items-center text-zinc-600">
+                <div key={layer.id} className="flex justify-between items-center text-zinc-300">
                   <span className="truncate max-w-[140px] font-medium">&ldquo;{layer.text}&rdquo;</span>
-                  <span className="font-mono text-[9px] bg-zinc-200/50 text-zinc-700 px-1 rounded uppercase">{layer.side}</span>
+                  <span className="font-mono text-[9px] bg-zinc-800 text-zinc-300 px-1.5 py-0.5 rounded uppercase font-semibold">{layer.side}</span>
                 </div>
               ))}
               {customizerState.logoLayers.map((layer) => (
-                <div key={layer.id} className="flex justify-between items-center text-zinc-600">
+                <div key={layer.id} className="flex justify-between items-center text-zinc-300">
                   <span className="truncate max-w-[140px] font-medium">Uploaded Graphic</span>
-                  <span className="font-mono text-[9px] bg-zinc-200/50 text-zinc-700 px-1 rounded uppercase">{layer.side}</span>
+                  <span className="font-mono text-[9px] bg-zinc-800 text-zinc-300 px-1.5 py-0.5 rounded uppercase font-semibold">{layer.side}</span>
                 </div>
               ))}
             </div>
@@ -168,15 +168,15 @@ export default function CheckoutSummaryPanel({
         {/* Size Selection */}
         <div className="space-y-2">
           <h3 className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Select Size</h3>
-          <div className="grid grid-cols-5 gap-1.5 bg-zinc-50 rounded-xl p-2 border border-zinc-200/40">
+          <div className="grid grid-cols-5 gap-1.5 bg-[#16161c] rounded-xl p-2 border border-zinc-800/80">
             {AVAILABLE_SIZES.map((sz) => (
               <button
                 key={sz}
                 onClick={() => setSelectedSize(sz)}
-                className={`py-2 text-xs font-bold rounded-lg transition-all ${
+                className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
                   selectedSize === sz
-                    ? 'bg-zinc-950 text-white shadow-sm scale-[1.03]'
-                    : 'bg-white border border-zinc-250/60 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 active:scale-95'
+                    ? 'bg-indigo-600 text-white shadow-md scale-[1.03]'
+                    : 'bg-[#1a1a22] border border-zinc-800 text-zinc-400 hover:bg-[#202028] hover:text-zinc-200 active:scale-95'
                 }`}
               >
                 {sz}
@@ -186,19 +186,19 @@ export default function CheckoutSummaryPanel({
         </div>
 
         {/* Quantity selector */}
-        <div className="flex justify-between items-center bg-zinc-50 border border-zinc-200/40 rounded-xl p-3">
-          <span className="text-xs font-semibold text-zinc-650">Quantity</span>
+        <div className="flex justify-between items-center bg-[#16161c] border border-zinc-800/80 rounded-xl p-3">
+          <span className="text-xs font-semibold text-zinc-450">Quantity</span>
           <div className="flex items-center gap-3">
             <button
               onClick={() => onQtyChange(Math.max(1, qty - 1))}
-              className="w-8 h-8 rounded-lg bg-white border border-zinc-200 flex items-center justify-center text-zinc-650 hover:bg-zinc-100 hover:text-zinc-900 active:scale-95 transition-all text-sm font-bold shadow-sm"
+              className="w-8 h-8 rounded-lg bg-[#1a1a22] border border-zinc-800 flex items-center justify-center text-zinc-400 hover:bg-[#202028] hover:text-zinc-200 active:scale-95 transition-all text-sm font-bold shadow-sm cursor-pointer"
             >
               -
             </button>
-            <span className="text-sm font-bold text-zinc-800 min-w-[20px] text-center">{qty}</span>
+            <span className="text-sm font-bold text-zinc-205 min-w-[20px] text-center">{qty}</span>
             <button
               onClick={() => onQtyChange(qty + 1)}
-              className="w-8 h-8 rounded-lg bg-white border border-zinc-200 flex items-center justify-center text-zinc-650 hover:bg-zinc-100 hover:text-zinc-900 active:scale-95 transition-all text-sm font-bold shadow-sm"
+              className="w-8 h-8 rounded-lg bg-[#1a1a22] border border-zinc-800 flex items-center justify-center text-zinc-400 hover:bg-[#202028] hover:text-zinc-200 active:scale-95 transition-all text-sm font-bold shadow-sm cursor-pointer"
             >
               +
             </button>
@@ -206,23 +206,23 @@ export default function CheckoutSummaryPanel({
         </div>
 
         {/* Price list items */}
-        <div className="space-y-2 pt-2 border-t border-zinc-100">
+        <div className="space-y-2 pt-2 border-t border-zinc-800">
           <h3 className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Pricing</h3>
           <div className="space-y-2 text-xs">
             <div className="flex justify-between">
-              <span className="text-zinc-500">Base Shirt (Relaxed Fit)</span>
-              <span className="text-zinc-850 font-semibold">${BASE_PRICE.toFixed(2)}</span>
+              <span className="text-zinc-500 font-medium">Base Shirt (Relaxed Fit)</span>
+              <span className="text-zinc-250 font-semibold">${BASE_PRICE.toFixed(2)}</span>
             </div>
             {decalsCount > 0 && (
-              <div className="flex justify-between text-zinc-700">
-                <span className="flex items-center gap-1">
-                  Custom Surcharge <span className="text-[10px] text-zinc-400">({decalsCount} &times; $5.00)</span>
+              <div className="flex justify-between text-zinc-300">
+                <span className="flex items-center gap-1 text-zinc-500 font-medium">
+                  Custom Surcharge <span className="text-[10px] text-zinc-550 font-normal">({decalsCount} &times; $5.00)</span>
                 </span>
-                <span className="font-semibold">+${customizationPrice.toFixed(2)}</span>
+                <span className="font-semibold text-zinc-200">+${customizationPrice.toFixed(2)}</span>
               </div>
             )}
-            <div className="h-px bg-zinc-100 my-1" />
-            <div className="flex justify-between text-zinc-950 font-bold text-sm">
+            <div className="h-px bg-zinc-800 my-1" />
+            <div className="flex justify-between text-zinc-100 font-bold text-sm">
               <span>Total Price</span>
               <span>${subtotal.toFixed(2)}</span>
             </div>
@@ -231,10 +231,10 @@ export default function CheckoutSummaryPanel({
       </div>
 
       {/* Checkout primary button */}
-      <div className="p-4 border-t border-zinc-100 bg-zinc-50/50">
+      <div className="p-4 border-t border-zinc-800 bg-[#0b0b0d]">
         <button
           onClick={handleCheckout}
-          className="w-full bg-zinc-950 hover:bg-zinc-900 active:scale-[0.98] text-white rounded-xl py-3 px-4 font-bold text-xs tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+          className="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-white rounded-xl py-3 px-4 font-bold text-xs tracking-wider transition-all shadow-lg shadow-indigo-650/15 flex items-center justify-center gap-2 cursor-pointer"
         >
           <ShoppingCart className="w-3.5 h-3.5" />
           <span>PROCEED TO CHECKOUT</span>

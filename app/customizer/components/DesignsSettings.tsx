@@ -79,14 +79,14 @@ interface DesignsSettingsProps {
 
 export default function DesignsSettings({ state, onUpdate }: DesignsSettingsProps) {
   return (
-    <div className="space-y-4 font-sans text-xs">
+    <div className="space-y-4 font-sans text-xs text-zinc-300">
       {/* Side selector */}
       <div className="space-y-1.5">
-        <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Apply To</label>
-        <div className="flex bg-zinc-100 p-0.5 rounded-lg border border-zinc-200 text-[10px] gap-0.5">
+        <label className="text-[10px] font-bold uppercase tracking-wider text-indigo-400">Apply To</label>
+        <div className="flex bg-[#16161c] p-0.5 rounded-lg border border-zinc-800 text-[10px] gap-0.5">
           {(['Both', 'Front', 'Back'] as const).map(side => (
             <button key={side} onClick={() => onUpdate('designSide', side)}
-              className={`flex-1 py-1 rounded-md font-semibold transition-all ${state.designSide === side ? 'bg-white text-zinc-950 shadow-sm' : 'text-zinc-500 hover:text-zinc-800'}`}>
+              className={`flex-1 py-1 rounded-md font-semibold transition-all ${state.designSide === side ? 'bg-indigo-600 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-250'}`}>
               {side}
             </button>
           ))}
@@ -95,18 +95,18 @@ export default function DesignsSettings({ state, onUpdate }: DesignsSettingsProp
 
       {/* Pattern grid */}
       <div className="space-y-1.5">
-        <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Pattern</label>
+        <label className="text-[10px] font-bold uppercase tracking-wider text-indigo-400">Pattern</label>
         <div className="grid grid-cols-3 gap-2">
           {DESIGN_PATTERNS.map(p => (
             <button key={p.id} onClick={() => onUpdate('designPattern', p.id)}
-              className={`rounded-xl overflow-hidden border-2 transition-all hover:scale-[1.03] active:scale-95 ${
-                state.designPattern === p.id ? 'border-zinc-950 shadow-lg' : 'border-transparent hover:border-zinc-300'
+              className={`rounded-xl overflow-hidden border-2 transition-all hover:scale-[1.03] active:scale-95 bg-[#16161c] ${
+                state.designPattern === p.id ? 'border-indigo-600 shadow-lg shadow-indigo-650/15' : 'border-zinc-800 hover:border-zinc-700'
               }`}
               title={p.name}>
               <div className="w-full aspect-square">
                 <PatternPreview pattern={p.id} primary={state.primary} />
               </div>
-              <div className={`text-[9px] font-semibold py-1 text-center ${state.designPattern === p.id ? 'bg-zinc-950 text-white' : 'bg-zinc-100 text-zinc-600'}`}>
+              <div className={`text-[9px] font-semibold py-1 text-center ${state.designPattern === p.id ? 'bg-indigo-600 text-white' : 'bg-[#1e1e24] text-zinc-400'}`}>
                 {p.name}
               </div>
             </button>
@@ -116,9 +116,9 @@ export default function DesignsSettings({ state, onUpdate }: DesignsSettingsProp
 
       {/* Design color hint */}
       {state.designPattern !== 'plain' && (
-        <div className="text-[10px] text-zinc-500 flex items-center gap-1.5 py-2 px-3 bg-zinc-50 rounded-xl border border-zinc-200">
-          <div className="w-3 h-3 rounded-full border border-zinc-300" style={{ backgroundColor: state.designColor }} />
-          Pattern uses design color from <strong className="text-zinc-700">Colors</strong> tab
+        <div className="text-[10px] text-zinc-400 flex items-center gap-1.5 py-2 px-3 bg-[#16161c] rounded-xl border border-zinc-850">
+          <div className="w-3 h-3 rounded-full border border-zinc-700" style={{ backgroundColor: state.designColor }} />
+          <span>Pattern uses design color from <strong className="text-indigo-400 font-semibold">Colors</strong> tab</span>
         </div>
       )}
     </div>
