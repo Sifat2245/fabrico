@@ -13,10 +13,10 @@ export function SizeSelector({ sizes, selected, onSelect }: SizeSelectorProps) {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-stone-950">Size</p>
+        <p className="text-sm font-medium text-zinc-300">Size</p>
         <button
           type="button"
-          className="text-xs font-medium text-stone-500 underline underline-offset-2 transition-colors hover:text-stone-950"
+          className="text-xs font-medium text-zinc-500 underline underline-offset-2 transition-colors hover:text-zinc-200"
         >
           Size guide
         </button>
@@ -29,8 +29,8 @@ export function SizeSelector({ sizes, selected, onSelect }: SizeSelectorProps) {
             onClick={() => onSelect(size)}
             className={`flex h-10 min-w-[44px] items-center justify-center rounded-xl border px-4 text-sm font-medium transition-all ${
               selected === size
-                ? "border-stone-950 bg-stone-950 text-white"
-                : "border-stone-200 text-stone-700 hover:border-stone-400"
+                ? "border-indigo-500 bg-indigo-600 text-white"
+                : "border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
             }`}
             aria-label={`Size ${size}`}
             aria-pressed={selected === size}
@@ -52,7 +52,7 @@ interface ColorSelectorProps {
 export function ColorSelector({ colors, selected, onSelect }: ColorSelectorProps) {
   return (
     <div>
-      <p className="text-sm font-medium text-stone-950">Color</p>
+      <p className="text-sm font-medium text-zinc-300">Color</p>
       <div className="mt-3 flex flex-wrap gap-3">
         {colors.map((color) => (
           <button
@@ -61,8 +61,8 @@ export function ColorSelector({ colors, selected, onSelect }: ColorSelectorProps
             onClick={() => onSelect(color)}
             className={`relative h-8 w-8 rounded-full border-2 transition-all ${
               selected === color
-                ? "border-stone-950 ring-2 ring-stone-950/20"
-                : "border-stone-200 hover:border-stone-400"
+                ? "border-indigo-500 ring-2 ring-indigo-500/30"
+                : "border-zinc-700 hover:border-zinc-500"
             }`}
             style={{ backgroundColor: color }}
             aria-label={`Color ${color}`}
@@ -89,7 +89,7 @@ export function StarRating({ rating, size = "sm" }: StarRatingProps) {
           className={`${iconSize} ${
             star <= rating
               ? "fill-amber-400 text-amber-400"
-              : "fill-stone-200 text-stone-200"
+              : "fill-zinc-700 text-zinc-700"
           }`}
         />
       ))}
@@ -121,7 +121,7 @@ export function InteractiveStarRating({ rating, onRate }: InteractiveStarRatingP
             className={`h-6 w-6 ${
               star <= (hovered || rating)
                 ? "fill-amber-400 text-amber-400"
-                : "fill-stone-200 text-stone-200"
+                : "fill-zinc-700 text-zinc-700"
             }`}
           />
         </button>

@@ -27,10 +27,10 @@ const cardVariants = {
 };
 
 const CATEGORY_COLORS = [
-  "bg-stone-100",
-  "bg-stone-200/70",
-  "bg-stone-100",
-  "bg-stone-200/70",
+  "bg-zinc-900",
+  "bg-zinc-800/80",
+  "bg-zinc-900",
+  "bg-zinc-800/80",
 ];
 
 export function FeaturedCategories() {
@@ -40,7 +40,7 @@ export function FeaturedCategories() {
   return (
     <section
       ref={sectionRef}
-      className="py-24 sm:py-32"
+      className="py-24 sm:py-32 bg-[#09090b]"
       aria-label="Featured Categories"
     >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -52,16 +52,16 @@ export function FeaturedCategories() {
           className="flex items-end justify-between"
         >
           <div>
-            <p className="text-xs font-medium uppercase tracking-widest text-stone-400">
+            <p className="text-xs font-medium uppercase tracking-widest text-indigo-400">
               Explore
             </p>
-            <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-stone-950 sm:text-4xl">
+            <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl">
               Shop by Category
             </h2>
           </div>
           <Link
             href="/shop"
-            className="hidden items-center gap-1.5 text-sm font-medium text-stone-600 transition-colors hover:text-stone-950 sm:flex"
+            className="hidden items-center gap-1.5 text-sm font-medium text-zinc-400 transition-colors hover:text-zinc-100 sm:flex"
           >
             View All
             <ArrowUpRight className="h-4 w-4" />
@@ -79,29 +79,32 @@ export function FeaturedCategories() {
             <motion.div key={category.id} variants={cardVariants}>
               <Link
                 href={`/shop?category=${category.slug}`}
-                className="group relative block overflow-hidden rounded-2xl"
+                className="group relative block overflow-hidden rounded-2xl border border-zinc-800"
               >
                 {/* Card Background */}
                 <div
-                  className={`aspect-[4/5] ${CATEGORY_COLORS[index]} flex items-end p-6 transition-all duration-300 group-hover:scale-[1.02]`}
+                  className={`aspect-[4/5] ${CATEGORY_COLORS[index]} flex items-end p-6 transition-all duration-300 group-hover:border-zinc-600`}
                 >
                   {/* Category Initial as Background Element */}
-                  <span className="absolute right-4 top-4 font-display text-[120px] font-bold leading-none text-stone-950/[0.04]">
+                  <span className="absolute right-4 top-4 font-display text-[120px] font-bold leading-none text-zinc-100/[0.03]">
                     {category.name.charAt(0)}
                   </span>
 
+                  {/* Indigo accent glow on hover */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-indigo-600/5 rounded-2xl" />
+
                   {/* Content */}
                   <div className="relative z-10">
-                    <h3 className="font-display text-xl font-semibold text-stone-950">
+                    <h3 className="font-display text-xl font-semibold text-zinc-100">
                       {category.name}
                     </h3>
-                    <p className="mt-1 text-sm text-stone-500">
+                    <p className="mt-1 text-sm text-zinc-500">
                       {category.itemCount} items
                     </p>
                   </div>
 
                   {/* Hover Arrow */}
-                  <div className="absolute right-6 bottom-6 flex h-10 w-10 items-center justify-center rounded-full bg-stone-950 text-white opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2">
+                  <div className="absolute right-6 bottom-6 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-white opacity-0 transition-all duration-300 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0">
                     <ArrowUpRight className="h-4 w-4" />
                   </div>
                 </div>
@@ -114,7 +117,7 @@ export function FeaturedCategories() {
         <div className="mt-8 flex justify-center sm:hidden">
           <Link
             href="/shop"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-stone-600 transition-colors hover:text-stone-950"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-400 transition-colors hover:text-zinc-100"
           >
             View All Categories
             <ArrowUpRight className="h-4 w-4" />

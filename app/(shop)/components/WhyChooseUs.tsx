@@ -58,7 +58,7 @@ export function WhyChooseUs() {
   return (
     <section
       ref={sectionRef}
-      className="border-t border-stone-100 py-24 sm:py-32"
+      className="border-t border-zinc-800/60 py-24 sm:py-32 bg-[#09090b]"
       aria-label="Why Choose Fabrico"
     >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -69,13 +69,13 @@ export function WhyChooseUs() {
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="mx-auto max-w-2xl text-center"
         >
-          <p className="text-xs font-medium uppercase tracking-widest text-stone-400">
+          <p className="text-xs font-medium uppercase tracking-widest text-indigo-400">
             Why Fabrico
           </p>
-          <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-stone-950 sm:text-4xl">
+          <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl">
             Crafted With Purpose
           </h2>
-          <p className="mt-4 text-base leading-relaxed text-stone-500">
+          <p className="mt-4 text-base leading-relaxed text-zinc-500">
             Every detail is considered. From the first sketch to the final
             stitch, we build for people who care about what they wear.
           </p>
@@ -94,13 +94,13 @@ export function WhyChooseUs() {
               variants={cardVariants}
               className="group text-center"
             >
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 text-stone-600 transition-colors duration-300 group-hover:bg-stone-950 group-hover:text-white">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-800/60 border border-zinc-700/60 text-zinc-400 transition-all duration-300 group-hover:bg-indigo-600/20 group-hover:border-indigo-500/40 group-hover:text-indigo-400">
                 <feature.icon className="h-6 w-6" />
               </div>
-              <h3 className="mt-5 text-sm font-semibold text-stone-950">
+              <h3 className="mt-5 text-sm font-semibold text-zinc-200">
                 {feature.title}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-stone-500">
+              <p className="mt-2 text-sm leading-relaxed text-zinc-500">
                 {feature.description}
               </p>
             </motion.div>

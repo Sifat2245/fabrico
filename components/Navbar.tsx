@@ -3,14 +3,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, Search, Menu, X, User } from "lucide-react";
+import { ShoppingBag, Search, Menu, X, User, Sparkles } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { SearchOverlay } from "./SearchOverlay";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
-  { href: "/customize", label: "Customize" },
   { href: "/about", label: "About" },
 ] as const;
 
@@ -18,7 +17,6 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { openSidebar, totalItems } = useCart();
-
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -46,7 +44,7 @@ export function Navbar() {
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-white/80 backdrop-blur-xl border-b border-stone-200/60 shadow-sm"
+            ? "bg-zinc-950/90 backdrop-blur-xl border-b border-zinc-800/60 shadow-sm shadow-black/20"
             : "bg-transparent"
         }`}
       >
@@ -57,9 +55,7 @@ export function Navbar() {
           {/* Logo */}
           <Link
             href="/"
-            className={`font-display text-2xl font-bold tracking-tight transition-colors hover:opacity-70 ${
-              isScrolled ? "text-stone-950" : "text-white"
-            }`}
+            className="font-display text-2xl font-bold tracking-tight text-zinc-100 transition-opacity hover:opacity-70"
             aria-label="Fabrico home"
           >
             Fabrico
@@ -71,11 +67,7 @@ export function Navbar() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`relative text-sm font-medium tracking-wide transition-colors ${
-                    isScrolled
-                      ? "text-stone-600 hover:text-stone-950"
-                      : "text-stone-300 hover:text-white"
-                  }`}
+                  className="relative text-sm font-medium tracking-wide text-zinc-400 transition-colors hover:text-zinc-100"
                 >
                   {link.label}
                 </Link>
@@ -84,16 +76,12 @@ export function Navbar() {
           </ul>
 
           {/* Desktop Actions */}
-          <div className="hidden items-center gap-4 md:flex">
+          <div className="hidden items-center gap-3 md:flex">
             <button
               type="button"
               onClick={() => setIsSearchOpen(true)}
               aria-label="Search products"
-              className={`rounded-full p-2 transition-colors ${
-                isScrolled
-                  ? "text-stone-600 hover:bg-stone-100 hover:text-stone-950"
-                  : "text-stone-300 hover:bg-white/10 hover:text-white"
-              }`}
+              className="rounded-full p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
             >
               <Search className="h-5 w-5" />
             </button>
@@ -101,19 +89,11 @@ export function Navbar() {
               type="button"
               onClick={openSidebar}
               aria-label="Shopping cart"
-              className={`relative rounded-full p-2 transition-colors ${
-                isScrolled
-                  ? "text-stone-600 hover:bg-stone-100 hover:text-stone-950"
-                  : "text-stone-300 hover:bg-white/10 hover:text-white"
-              }`}
+              className="relative rounded-full p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
             >
               <ShoppingBag className="h-5 w-5" />
               {totalItems > 0 && (
-                <span className={`absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-semibold ${
-                  isScrolled
-                    ? "bg-stone-950 text-white"
-                    : "bg-white text-stone-950"
-                }`}>
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-500 text-[10px] font-semibold text-white">
                   {totalItems}
                 </span>
               )}
@@ -121,13 +101,18 @@ export function Navbar() {
             <Link
               href="/auth/login"
               aria-label="Account"
-              className={`rounded-full p-2 transition-colors ${
-                isScrolled
-                  ? "text-stone-600 hover:bg-stone-100 hover:text-stone-950"
-                  : "text-stone-300 hover:bg-white/10 hover:text-white"
-              }`}
+              className="rounded-full p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
             >
               <User className="h-5 w-5" />
+            </Link>
+
+            {/* ── Start Customizing CTA ── */}
+            <Link
+              href="/customizer"
+              className="group ml-1 inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-indigo-500 hover:shadow-lg hover:shadow-indigo-500/25 active:scale-95"
+            >
+              <Sparkles className="h-4 w-4" />
+              Start Customizing
             </Link>
           </div>
 
@@ -136,11 +121,7 @@ export function Navbar() {
             type="button"
             aria-label={isMobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={isMobileOpen}
-            className={`rounded-full p-2 transition-colors md:hidden ${
-              isScrolled
-                ? "text-stone-600 hover:bg-stone-100 hover:text-stone-950"
-                : "text-stone-300 hover:bg-white/10 hover:text-white"
-            }`}
+            className="rounded-full p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100 md:hidden"
             onClick={() => setIsMobileOpen(!isMobileOpen)}
           >
             {isMobileOpen ? (
@@ -161,7 +142,7 @@ export function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-stone-950/30 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
               onClick={() => setIsMobileOpen(false)}
               aria-hidden="true"
             />
@@ -170,16 +151,16 @@ export function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed right-0 top-0 z-50 flex h-full w-80 flex-col bg-white shadow-2xl md:hidden"
+              className="fixed right-0 top-0 z-50 flex h-full w-80 flex-col bg-zinc-950 border-l border-zinc-800 shadow-2xl md:hidden"
             >
-              <div className="flex items-center justify-between border-b border-stone-100 px-6 py-4">
-                <span className="font-display text-xl font-bold text-stone-950">
+              <div className="flex items-center justify-between border-b border-zinc-800 px-6 py-4">
+                <span className="font-display text-xl font-bold text-zinc-100">
                   Fabrico
                 </span>
                 <button
                   type="button"
                   aria-label="Close menu"
-                  className="rounded-full p-2 text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-950"
+                  className="rounded-full p-2 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                   onClick={() => setIsMobileOpen(false)}
                 >
                   <X className="h-5 w-5" />
@@ -197,7 +178,7 @@ export function Navbar() {
                     >
                       <Link
                         href={link.href}
-                        className="block rounded-xl px-4 py-3 text-lg font-medium text-stone-700 transition-colors hover:bg-stone-50 hover:text-stone-950"
+                        className="block rounded-xl px-4 py-3 text-lg font-medium text-zinc-300 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                         onClick={() => setIsMobileOpen(false)}
                       >
                         {link.label}
@@ -207,7 +188,7 @@ export function Navbar() {
                 </ul>
               </nav>
 
-              <div className="border-t border-stone-100 px-6 py-6 font-body">
+              <div className="border-t border-zinc-800 px-6 py-6">
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center gap-3">
                     <button
@@ -217,7 +198,7 @@ export function Navbar() {
                         setIsSearchOpen(true);
                       }}
                       aria-label="Search products"
-                      className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 py-3 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-950"
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-zinc-700 px-4 py-3 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                     >
                       <Search className="h-4 w-4" />
                       Search
@@ -229,16 +210,24 @@ export function Navbar() {
                         openSidebar();
                       }}
                       aria-label="Shopping cart"
-                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-stone-800"
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-zinc-800 px-4 py-3 text-sm font-medium text-zinc-100 transition-colors hover:bg-zinc-700"
                     >
                       <ShoppingBag className="h-4 w-4" />
                       Cart ({totalItems})
                     </button>
                   </div>
                   <Link
+                    href="/customizer"
+                    onClick={() => setIsMobileOpen(false)}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Start Customizing
+                  </Link>
+                  <Link
                     href="/auth/login"
                     onClick={() => setIsMobileOpen(false)}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 py-3 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-950"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-700 px-4 py-3 text-sm font-medium text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
                   >
                     <User className="h-4 w-4" />
                     Sign In
@@ -251,7 +240,6 @@ export function Navbar() {
       </AnimatePresence>
 
       <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-
     </>
   );
 }

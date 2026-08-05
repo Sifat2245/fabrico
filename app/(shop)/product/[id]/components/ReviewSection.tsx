@@ -42,7 +42,7 @@ export function ReviewSection({
   };
 
   return (
-    <section ref={sectionRef} className="mt-16 border-t border-stone-100 pt-12">
+    <section ref={sectionRef} className="mt-16 border-t border-zinc-800 pt-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
@@ -51,12 +51,12 @@ export function ReviewSection({
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-display text-2xl font-bold text-stone-950">
+            <h2 className="font-display text-2xl font-bold text-zinc-100">
               Customer Reviews
             </h2>
             <div className="mt-2 flex items-center gap-3">
               <StarRating rating={Math.round(averageRating)} size="md" />
-              <span className="text-sm text-stone-500">
+              <span className="text-sm text-zinc-500">
                 {averageRating} out of 5 ({reviews.length} review
                 {reviews.length !== 1 ? "s" : ""})
               </span>
@@ -66,7 +66,7 @@ export function ReviewSection({
             <button
               type="button"
               onClick={() => setShowForm(true)}
-              className="rounded-xl border border-stone-200 px-5 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 hover:text-stone-950"
+              className="rounded-xl border border-zinc-700 px-5 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:border-zinc-500 hover:text-zinc-100"
             >
               Write a Review
             </button>
@@ -79,15 +79,15 @@ export function ReviewSection({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             onSubmit={handleSubmit}
-            className="mt-8 rounded-2xl border border-stone-200 p-6"
+            className="mt-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6"
           >
-            <h3 className="text-sm font-semibold text-stone-950">
+            <h3 className="text-sm font-semibold text-zinc-200">
               Share your experience
             </h3>
 
             <div className="mt-4 space-y-4">
               <div>
-                <label htmlFor="review-name" className="block text-sm font-medium text-stone-700">
+                <label htmlFor="review-name" className="block text-sm font-medium text-zinc-400">
                   Name
                 </label>
                 <input
@@ -97,19 +97,19 @@ export function ReviewSection({
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
                   required
-                  className="mt-1.5 w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm text-stone-950 placeholder:text-stone-400 focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-950/10"
+                  className="mt-1.5 w-full rounded-xl border border-zinc-700 bg-zinc-800/60 px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-indigo-500/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                 />
               </div>
 
               <div>
-                <p className="text-sm font-medium text-stone-700">Rating</p>
+                <p className="text-sm font-medium text-zinc-400">Rating</p>
                 <div className="mt-1.5">
                   <InteractiveStarRating rating={rating} onRate={setRating} />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="review-comment" className="block text-sm font-medium text-stone-700">
+                <label htmlFor="review-comment" className="block text-sm font-medium text-zinc-400">
                   Review
                 </label>
                 <textarea
@@ -119,7 +119,7 @@ export function ReviewSection({
                   placeholder="Tell us about your experience..."
                   required
                   rows={4}
-                  className="mt-1.5 w-full resize-none rounded-xl border border-stone-200 px-4 py-2.5 text-sm text-stone-950 placeholder:text-stone-400 focus:border-stone-400 focus:outline-none focus:ring-2 focus:ring-stone-950/10"
+                  className="mt-1.5 w-full resize-none rounded-xl border border-zinc-700 bg-zinc-800/60 px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-indigo-500/50 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                 />
               </div>
 
@@ -127,7 +127,7 @@ export function ReviewSection({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex items-center gap-2 rounded-xl bg-stone-950 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-stone-800 disabled:opacity-60"
+                  className="flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500 disabled:opacity-60"
                 >
                   {isSubmitting ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -138,7 +138,7 @@ export function ReviewSection({
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="rounded-xl border border-stone-200 px-5 py-2.5 text-sm font-medium text-stone-600 transition-colors hover:border-stone-400"
+                  className="rounded-xl border border-zinc-700 px-5 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:border-zinc-500 hover:text-zinc-200"
                 >
                   Cancel
                 </button>
@@ -151,7 +151,7 @@ export function ReviewSection({
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mt-6 rounded-xl bg-green-50 px-4 py-3 text-sm text-green-700"
+            className="mt-6 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400"
           >
             Thank you for your review! It will appear shortly.
           </motion.p>
@@ -160,30 +160,30 @@ export function ReviewSection({
         {/* Review List */}
         <div className="mt-8 space-y-6">
           {reviews.length === 0 ? (
-            <p className="text-sm text-stone-500">
+            <p className="text-sm text-zinc-500">
               No reviews yet. Be the first to share your experience.
             </p>
           ) : (
             reviews.map((review) => (
               <div
                 key={review.id}
-                className="border-b border-stone-100 pb-6 last:border-0"
+                className="border-b border-zinc-800/60 pb-6 last:border-0"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-stone-100 text-sm font-semibold text-stone-600">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-sm font-semibold text-zinc-300">
                       {review.author.charAt(0)}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-stone-950">
+                      <p className="text-sm font-medium text-zinc-200">
                         {review.author}
                         {review.verified && (
-                          <span className="ml-2 text-xs text-green-600">
+                          <span className="ml-2 text-xs text-emerald-500">
                             Verified Purchase
                           </span>
                         )}
                       </p>
-                      <p className="text-xs text-stone-400">
+                      <p className="text-xs text-zinc-600">
                         {new Date(review.date).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "long",
@@ -194,7 +194,7 @@ export function ReviewSection({
                   </div>
                   <StarRating rating={review.rating} />
                 </div>
-                <p className="mt-3 text-sm leading-relaxed text-stone-600">
+                <p className="mt-3 text-sm leading-relaxed text-zinc-400">
                   {review.comment}
                 </p>
               </div>

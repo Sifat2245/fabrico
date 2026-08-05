@@ -46,22 +46,22 @@ export function ProductDetails({
     >
       {/* Badge */}
       {product.badge && (
-        <span className="mb-3 inline-flex w-fit items-center rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-stone-700">
+        <span className="mb-3 inline-flex w-fit items-center rounded-full bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-indigo-400">
           {product.badge}
         </span>
       )}
 
       {/* Title & Price */}
-      <h1 className="font-display text-3xl font-bold tracking-tight text-stone-950 sm:text-4xl">
+      <h1 className="font-display text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl">
         {product.name}
       </h1>
 
       <div className="mt-3 flex items-center gap-4">
-        <p className="text-2xl font-bold text-stone-950">
+        <p className="text-2xl font-bold text-zinc-100">
           ${product.price.toFixed(2)}
         </p>
         {product.originalPrice && (
-          <p className="text-lg text-stone-400 line-through">
+          <p className="text-lg text-zinc-600 line-through">
             ${product.originalPrice.toFixed(2)}
           </p>
         )}
@@ -71,14 +71,14 @@ export function ProductDetails({
       {reviewCount > 0 && (
         <div className="mt-3 flex items-center gap-2">
           <StarRating rating={Math.round(averageRating)} />
-          <span className="text-sm text-stone-500">
+          <span className="text-sm text-zinc-500">
             {averageRating} ({reviewCount})
           </span>
         </div>
       )}
 
       {/* Description */}
-      <p className="mt-6 text-base leading-relaxed text-stone-600">
+      <p className="mt-6 text-base leading-relaxed text-zinc-400">
         {description}
       </p>
 
@@ -109,32 +109,32 @@ export function ProductDetails({
         <button
           type="button"
           onClick={handleAddToCart}
-          className="group flex flex-1 items-center justify-center gap-2 rounded-xl bg-stone-950 px-6 py-4 text-sm font-semibold text-white transition-colors hover:bg-stone-800"
+          className="group flex flex-1 items-center justify-center gap-2 rounded-xl bg-zinc-100 px-6 py-4 text-sm font-semibold text-zinc-950 transition-colors hover:bg-white"
         >
           <ShoppingBag className="h-4 w-4" />
           Order Now
         </button>
         {product.customizable && (
           <Link
-            href={`/customize?product=${product.id}`}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-stone-200 px-6 py-4 text-sm font-semibold text-stone-700 transition-colors hover:border-stone-400 hover:text-stone-950"
+            href={`/customizer?product=${product.id}`}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-4 text-sm font-semibold text-white transition-all hover:bg-indigo-500 hover:shadow-lg hover:shadow-indigo-500/20"
           >
             <Palette className="h-4 w-4" />
-            Customize
+            Customize in Studio
           </Link>
         )}
       </div>
 
       {/* Feature badges */}
-      <div className="mt-8 grid grid-cols-3 gap-4 border-t border-stone-100 pt-8">
+      <div className="mt-8 grid grid-cols-3 gap-4 border-t border-zinc-800 pt-8">
         {[
           { icon: Truck, label: "Free Shipping" },
           { icon: Shield, label: "2-Year Warranty" },
           { icon: RotateCcw, label: "30-Day Returns" },
         ].map((feature) => (
           <div key={feature.label} className="flex flex-col items-center text-center">
-            <feature.icon className="h-5 w-5 text-stone-400" />
-            <p className="mt-1.5 text-xs text-stone-500">{feature.label}</p>
+            <feature.icon className="h-5 w-5 text-zinc-600" />
+            <p className="mt-1.5 text-xs text-zinc-500">{feature.label}</p>
           </div>
         ))}
       </div>

@@ -35,7 +35,7 @@ export function FeaturedProducts() {
   return (
     <section
       ref={sectionRef}
-      className="bg-stone-50/50 py-24 sm:py-32"
+      className="bg-[#0c0c0f] py-24 sm:py-32 border-t border-zinc-800/40"
       aria-label="Featured Products"
     >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -47,16 +47,16 @@ export function FeaturedProducts() {
           className="flex items-end justify-between"
         >
           <div>
-            <p className="text-xs font-medium uppercase tracking-widest text-stone-400">
+            <p className="text-xs font-medium uppercase tracking-widest text-indigo-400">
               Curated
             </p>
-            <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-stone-950 sm:text-4xl">
+            <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl">
               Featured Products
             </h2>
           </div>
           <Link
             href="/shop"
-            className="hidden items-center gap-1.5 text-sm font-medium text-stone-600 transition-colors hover:text-stone-950 sm:flex"
+            className="hidden items-center gap-1.5 text-sm font-medium text-zinc-400 transition-colors hover:text-zinc-100 sm:flex"
           >
             View All
             <ArrowUpRight className="h-4 w-4" />
@@ -74,14 +74,14 @@ export function FeaturedProducts() {
             <motion.article key={product.id} variants={cardVariants}>
               <div className="group">
                 {/* Image Area */}
-                <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-stone-100">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-zinc-900 border border-zinc-800/60">
                   <ViewTransition
                     name={`product-${product.id}`}
                     share="morph"
                   >
                     {/* Placeholder color block */}
-                    <div className="absolute inset-0 flex h-full w-full items-center justify-center bg-gradient-to-br from-stone-200 to-stone-100">
-                      <span className="font-display text-6xl font-bold text-stone-300/50">
+                    <div className="absolute inset-0 flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900">
+                      <span className="font-display text-6xl font-bold text-zinc-700/50">
                         {product.name.charAt(0)}
                       </span>
                     </div>
@@ -89,13 +89,13 @@ export function FeaturedProducts() {
 
                   {/* Badge */}
                   {product.badge && (
-                    <span className="absolute left-3 top-3 z-10 rounded-full bg-stone-950 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
+                    <span className="absolute left-3 top-3 z-10 rounded-full bg-indigo-600 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">
                       {product.badge}
                     </span>
                   )}
 
                   {/* Hover Overlay */}
-                  <div className="absolute inset-0 z-10 flex items-end justify-center gap-2 bg-gradient-to-t from-stone-950/60 via-transparent to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <div className="absolute inset-0 z-10 flex items-end justify-center gap-2 bg-gradient-to-t from-black/70 via-transparent to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     <button
                       type="button"
                       onClick={() =>
@@ -106,7 +106,7 @@ export function FeaturedProducts() {
                           selectedSize: product.sizes?.[0],
                         })
                       }
-                      className="flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-xs font-semibold text-stone-950 transition-transform hover:scale-105"
+                      className="flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-xs font-semibold text-zinc-950 transition-transform hover:scale-105"
                       aria-label={`Add ${product.name} to cart`}
                     >
                       <ShoppingBag className="h-3.5 w-3.5" />
@@ -114,8 +114,8 @@ export function FeaturedProducts() {
                     </button>
                     {product.customizable && (
                       <Link
-                        href={`/customize?product=${product.id}`}
-                        className="flex items-center gap-2 rounded-full bg-stone-800 px-5 py-2.5 text-xs font-semibold text-white transition-transform hover:scale-105"
+                        href={`/customizer?product=${product.id}`}
+                        className="flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-2.5 text-xs font-semibold text-white transition-transform hover:scale-105"
                         aria-label={`Customize ${product.name}`}
                       >
                         <Palette className="h-3.5 w-3.5" />
@@ -129,21 +129,21 @@ export function FeaturedProducts() {
                 <div className="mt-4 px-1">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="text-sm font-medium text-stone-950">
+                      <h3 className="text-sm font-medium text-zinc-200">
                         <Link href={`/product/${product.id}`}>
                           {product.name}
                         </Link>
                       </h3>
-                      <p className="mt-0.5 text-xs text-stone-500 capitalize">
+                      <p className="mt-0.5 text-xs text-zinc-500 capitalize">
                         {product.category.replace("-", " ")}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-stone-950">
+                      <p className="text-sm font-semibold text-zinc-100">
                         ${product.price.toFixed(2)}
                       </p>
                       {product.originalPrice && (
-                        <p className="text-xs text-stone-400 line-through">
+                        <p className="text-xs text-zinc-600 line-through">
                           ${product.originalPrice.toFixed(2)}
                         </p>
                       )}
@@ -156,7 +156,7 @@ export function FeaturedProducts() {
                       {product.colors.map((color: string) => (
                         <span
                           key={color}
-                          className="h-3.5 w-3.5 rounded-full border border-stone-200"
+                          className="h-3.5 w-3.5 rounded-full border border-zinc-700"
                           style={{ backgroundColor: color }}
                           aria-label={`Color: ${color}`}
                         />
@@ -173,7 +173,7 @@ export function FeaturedProducts() {
         <div className="mt-10 flex justify-center sm:hidden">
           <Link
             href="/shop"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-stone-600 transition-colors hover:text-stone-950"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-400 transition-colors hover:text-zinc-100"
           >
             View All Products
             <ArrowUpRight className="h-4 w-4" />

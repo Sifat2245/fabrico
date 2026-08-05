@@ -33,7 +33,7 @@ const SOCIAL_LINKS = [
 export function Footer() {
   return (
     <footer
-      className="bg-stone-950 text-stone-300"
+      className="bg-zinc-950 text-zinc-300 border-t border-zinc-800/60"
       aria-label="Site footer"
     >
       {/* Main Footer Content */}
@@ -74,7 +74,7 @@ export function Footer() {
                 <button
                   type="submit"
                   aria-label="Subscribe to newsletter"
-                  className="flex items-center justify-center rounded-xl bg-white px-4 py-3 text-stone-950 transition-colors hover:bg-stone-200"
+                  className="flex items-center justify-center rounded-xl bg-indigo-600 px-4 py-3 text-white transition-colors hover:bg-indigo-500"
                 >
                   <ArrowRight className="h-4 w-4" />
                 </button>

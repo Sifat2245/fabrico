@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import LoadingScreen from './components/LoadingScreen';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, RotateCcw, Save, ShoppingCart, Download,
@@ -40,6 +41,7 @@ const PANEL_LABELS: Record<CustomizerTab, string> = {
 };
 
 export default function CustomizerPage() {
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<CustomizerTab>('designs');
   const [autoRotate, setAutoRotate] = useState(false);
   const [qty, setQty] = useState(1);
@@ -68,7 +70,9 @@ export default function CustomizerPage() {
     update(key, value as CustomizerState[typeof key]);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#09090b] font-sans antialiased text-zinc-200">
+    <>
+      {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
+      <div className="flex h-screen w-screen overflow-hidden bg-[#09090b] font-sans antialiased text-zinc-200">
       {/* ── Left: Tab Icon Sidebar ─────────────────────────────────────────── */}
       <SettingsIconSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -221,6 +225,7 @@ export default function CustomizerPage() {
           />
         )}
       </AnimatePresence>
-    </div>
+      </div>
+    </>
   );
 }
