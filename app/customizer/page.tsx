@@ -13,6 +13,7 @@ import DesignsSettings from './components/DesignsSettings';
 import PatternsSettings from './components/PatternsSettings';
 import TextSettings from './components/TextSettings';
 import LogoUploadSettings from './components/LogoUploadSettings';
+import CheckoutSummaryPanel from './components/CheckoutSummaryPanel';
 import { useCustomizerState } from '../../hooks/useCustomizerState';
 import { CustomizerState } from './components/types';
 
@@ -41,6 +42,8 @@ const PANEL_LABELS: Record<CustomizerTab, string> = {
 export default function CustomizerPage() {
   const [activeTab, setActiveTab] = useState<CustomizerTab>('designs');
   const [autoRotate, setAutoRotate] = useState(false);
+  const [qty, setQty] = useState(1);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
   const {
     state,
@@ -148,16 +151,6 @@ export default function CustomizerPage() {
             </motion.div>
           </AnimatePresence>
         </div>
-
-        {/* CTA bar */}
-        <div className="px-4 py-3 border-t border-zinc-100 flex gap-2">
-          <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-zinc-950 text-white text-xs font-semibold hover:bg-zinc-800 transition-all shadow-sm">
-            <ShoppingCart className="w-3.5 h-3.5" /> Add to Cart
-          </button>
-          <button className="p-2 rounded-xl bg-zinc-100 border border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 transition-all" title="Save design">
-            <Save className="w-4 h-4" />
-          </button>
-        </div>
       </aside>
 
       {/* ── Right: 3D Viewport ─────────────────────────────────────────────── */}
@@ -190,7 +183,45 @@ export default function CustomizerPage() {
             Drag to rotate · Scroll to zoom
           </div>
         </div>
+
+        {/* Floating checkout button on mobile */}
+        <div className="absolute bottom-5 right-5 z-10 lg:hidden">
+          <button
+            onClick={() => setIsCheckoutOpen(true)}
+            className="flex items-center gap-1.5 bg-zinc-950 text-white px-4 py-2.5 rounded-xl shadow-lg font-semibold text-xs hover:bg-zinc-800 transition-all active:scale-95"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            <span>Checkout</span>
+          </button>
+        </div>
       </main>
+
+      {/* ── Rightmost Sidebar: Checkout Summary Drawer/Sidebar ─────────────────── */}
+      <div
+        className={`fixed inset-y-0 right-0 z-40 transform ${
+          isCheckoutOpen ? 'translate-x-0' : 'translate-x-full'
+        } transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 flex-shrink-0 h-full`}
+      >
+        <CheckoutSummaryPanel
+          customizerState={state}
+          qty={qty}
+          onQtyChange={setQty}
+          onClose={() => setIsCheckoutOpen(false)}
+        />
+      </div>
+
+      {/* Backdrop for mobile drawer */}
+      <AnimatePresence>
+        {isCheckoutOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.4 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsCheckoutOpen(false)}
+            className="fixed inset-0 bg-black z-30 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

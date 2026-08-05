@@ -288,14 +288,13 @@ export function useJerseyTextures(state: CustomizerState): {
     };
 
     const getBaseColor = (side: 'Front' | 'Back'): string => {
-      if (side === 'Front') {
-        return state.primaryColorSide === 'Back'
-          ? (state.primaryBack || state.primary)
-          : (state.primaryFront || state.primary);
+      if (!state.primaryColorSide || state.primaryColorSide === 'Both') {
+        return state.primary;
       }
-      return state.primaryColorSide === 'Front'
-        ? (state.primaryFront || state.primary)
-        : (state.primaryBack || state.primary);
+      if (side === 'Front') {
+        return state.primaryFront || state.primary;
+      }
+      return state.primaryBack || state.primary;
     };
 
     const drawFabric = (ctx: CanvasRenderingContext2D, side: 'Front' | 'Back') => {
