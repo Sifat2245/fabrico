@@ -7,7 +7,7 @@ import {
   FABRICO_STORAGE_KEY,
   TextLayer,
   LogoLayer,
-} from '../components/types';
+} from '../app/customizer/components/types';
 
 type PersistableState = Omit<CustomizerState, 'loadedLogoImages' | 'loadedPatterns'>;
 

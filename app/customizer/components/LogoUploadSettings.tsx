@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
-import { Upload, Trash2, ChevronUp, ChevronDown, Eraser, Image as ImageIcon, Layers } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { Upload, Trash2, ChevronUp, ChevronDown, Image as ImageIcon, Layers } from 'lucide-react';
 import { LogoLayer, CustomizerState } from './types';
 
 function genId() { return `logo_${Date.now()}_${Math.random().toString(36).slice(2,6)}`; }
@@ -15,6 +15,9 @@ interface LogoUploadSettingsProps {
   preloadImage: (src: string) => void;
 }
 
+const CANVAS_SZ = 240;
+const SCALE_FACTOR = 1024 / CANVAS_SZ; // 4.26666666667
+
 export default function LogoUploadSettings({
   state,
   onAddLogoLayer,
@@ -24,9 +27,20 @@ export default function LogoUploadSettings({
   preloadImage,
 }: LogoUploadSettingsProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
   const [addSide, setAddSide] = useState<'Front' | 'Back'>('Front');
   const [addType, setAddType] = useState<'logo' | 'image'>('logo');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  
+  const [fabricInstance, setFabricInstance] = useState<any>(null);
+  const isUpdatingFromFabric = useRef(false);
+
+  // Keep callback refs stable to avoid recreating fabric canvas unnecessarily
+  const onUpdateLogoLayerRef = useRef(onUpdateLogoLayer);
+  useEffect(() => {
+    onUpdateLogoLayerRef.current = onUpdateLogoLayer;
+  }, [onUpdateLogoLayer]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -40,7 +54,8 @@ export default function LogoUploadSettings({
         type: addType,
         side: addSide,
         src,
-        x: 512, y: addSide === 'Front' ? 250 : 250,
+        x: 512,
+        y: addSide === 'Front' ? 250 : 250,
         scale: 1,
         rotation: 0,
         opacity: 1,
@@ -54,6 +69,160 @@ export default function LogoUploadSettings({
     e.target.value = '';
   };
 
+  // 1. Initialize Fabric Canvas
+  useEffect(() => {
+    let active = true;
+    let canvas: any = null;
+
+    const initFabric = async () => {
+      const fabric = await import('fabric');
+      if (!active || !canvasRef.current) return;
+
+      canvas = new fabric.Canvas(canvasRef.current, {
+        width: CANVAS_SZ,
+        height: CANVAS_SZ,
+        backgroundColor: 'transparent',
+        selection: false,
+        stopContextMenu: true,
+      });
+
+      setFabricInstance(canvas);
+
+      // Handle selections
+      canvas.on('selection:created', (e: any) => {
+        const obj = e.selected?.[0];
+        if (obj && obj.id) {
+          setSelectedId(obj.id);
+        }
+      });
+      canvas.on('selection:updated', (e: any) => {
+        const obj = e.selected?.[0];
+        if (obj && obj.id) {
+          setSelectedId(obj.id);
+        }
+      });
+      canvas.on('selection:cleared', () => {
+        setSelectedId(null);
+      });
+
+      // Handle modification events (moving, scaling, rotating)
+      const handleModify = (e: any) => {
+        const obj = e.target;
+        if (!obj || !obj.id) return;
+
+        isUpdatingFromFabric.current = true;
+
+        const newX = obj.left * SCALE_FACTOR;
+        const newY = obj.top * SCALE_FACTOR;
+        const newScale = obj.scaleX * SCALE_FACTOR;
+        const newRotation = obj.angle || 0;
+
+        onUpdateLogoLayerRef.current(obj.id, {
+          x: newX,
+          y: newY,
+          scale: newScale,
+          rotation: newRotation,
+        });
+
+        setTimeout(() => {
+          isUpdatingFromFabric.current = false;
+        }, 50);
+      };
+
+      canvas.on('object:moving', handleModify);
+      canvas.on('object:scaling', handleModify);
+      canvas.on('object:rotating', handleModify);
+    };
+
+    initFabric();
+
+    return () => {
+      active = false;
+      if (canvas) {
+        canvas.dispose();
+      }
+    };
+  }, [addSide]);
+
+  // 2. Synchronize logo layers with Fabric Canvas objects
+  useEffect(() => {
+    if (!fabricInstance || isUpdatingFromFabric.current) return;
+
+    const canvas = fabricInstance;
+    const canvasObjects = canvas.getObjects();
+    const activeLogos = state.logoLayers.filter((l) => l.side === addSide);
+
+    // Remove objects that no longer exist in state
+    canvasObjects.forEach((obj: any) => {
+      if (!obj.id) return;
+      const stillExists = activeLogos.some((l) => l.id === obj.id);
+      if (!stillExists) {
+        canvas.remove(obj);
+      }
+    });
+
+    // Add or update objects
+    activeLogos.forEach((layer) => {
+      const existingObj = canvasObjects.find((obj: any) => obj.id === layer.id);
+
+      const left = layer.x / SCALE_FACTOR;
+      const top = layer.y / SCALE_FACTOR;
+      const scale = layer.scale / SCALE_FACTOR;
+      const angle = layer.rotation;
+
+      if (existingObj) {
+        existingObj.set({
+          left,
+          top,
+          scaleX: scale,
+          scaleY: scale,
+          angle,
+        });
+
+        if (layer.id === selectedId) {
+          canvas.setActiveObject(existingObj);
+        } else if (canvas.getActiveObject() === existingObj && selectedId === null) {
+          canvas.discardActiveObject();
+        }
+
+        existingObj.setCoords();
+        canvas.requestRenderAll();
+      } else {
+        const element = document.createElement('img');
+        element.src = layer.src;
+        element.crossOrigin = 'anonymous';
+
+        element.onload = async () => {
+          const fabric = await import('fabric');
+          const fabricImg = new fabric.FabricImage(element, {
+            left,
+            top,
+            originX: 'center',
+            originY: 'center',
+            scaleX: scale,
+            scaleY: scale,
+            angle,
+            cornerColor: '#18181b',
+            cornerStrokeColor: '#ffffff',
+            borderColor: '#18181b',
+            cornerSize: 8,
+            transparentCorners: false,
+          });
+
+          (fabricImg as any).id = layer.id;
+          canvas.add(fabricImg);
+
+          if (layer.id === selectedId) {
+            canvas.setActiveObject(fabricImg);
+          }
+          canvas.requestRenderAll();
+        };
+      }
+    });
+
+    canvas.requestRenderAll();
+  }, [fabricInstance, state.logoLayers, selectedId, addSide]);
+
   const selected = state.logoLayers.find(l => l.id === selectedId);
 
   // All layers sorted by layersOrder
@@ -64,7 +233,7 @@ export default function LogoUploadSettings({
   });
 
   return (
-    <div className="space-y-4 font-sans text-xs">
+    <div className="space-y-4 font-sans text-xs pb-4">
       <input type="file" ref={fileInputRef} onChange={handleFileUpload}
         accept="image/png,image/jpeg,image/svg+xml,image/webp" className="hidden" />
 
@@ -170,13 +339,55 @@ export default function LogoUploadSettings({
             <div className="flex justify-between text-[9px] text-zinc-500"><span>Opacity</span><span className="font-mono font-bold">{Math.round((selected.opacity ?? 1) * 100)}%</span></div>
             <input type="range" min="0" max="1" step="0.01" value={selected.opacity ?? 1} onChange={e => onUpdateLogoLayer(selected.id, { opacity: +e.target.value })} className="w-full accent-zinc-950" />
           </div>
-
-          {/* Preview */}
-          <div className="rounded-lg border border-zinc-200 overflow-hidden bg-zinc-100 flex items-center justify-center h-20">
-            <img src={selected.src} alt="Preview" className="max-h-full max-w-full object-contain" />
-          </div>
         </div>
       )}
+
+      {/* Visual Logo Editor Canvas */}
+      <div className="space-y-2 pt-3 border-t border-zinc-150">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+          Visual Logo Editor ({addSide === 'Front' ? 'Front View' : 'Back View'})
+        </div>
+        <div className="relative w-full aspect-square bg-[#f8f9fa] border border-zinc-200 rounded-2xl overflow-hidden flex items-center justify-center pointer-events-auto">
+          {/* Silhouette overlay vector path behind transparent Fabric.js layer */}
+          <svg
+            className="absolute w-4/5 h-4/5 text-zinc-300 pointer-events-none"
+            viewBox="0 0 100 100"
+            fill="none"
+            stroke="rgba(9, 9, 11, 0.12)"
+            strokeWidth="1.2"
+          >
+            <defs>
+              <pattern id="grid-upload" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(9, 9, 11, 0.025)" strokeWidth="0.5" />
+              </pattern>
+            </defs>
+            <rect width="100" height="100" fill="url(#grid-upload)" stroke="none" />
+
+            {addSide === 'Front' ? (
+              // Front Collar Outline
+              <path
+                d="M 50,16 C 43.5,16 38.5,10.5 38.5,10.5 H 24 L 6,26 L 19,38 L 29.5,31 V 88 H 70.5 V 31 L 81,38 L 94,26 L 79.5,10.5 H 61.5 C 61.5,10.5 56.5,16 50,16 Z"
+                fill="rgba(9, 9, 11, 0.015)"
+              />
+            ) : (
+              // Back Collar Outline (Higher horizontal ridge at neckline)
+              <path
+                d="M 50,11.5 C 44.5,11.5 38.5,10.5 38.5,10.5 H 24 L 6,26 L 19,38 L 29.5,31 V 88 H 70.5 V 31 L 81,38 L 94,26 L 79.5,10.5 H 61.5 C 61.5,10.5 55.5,11.5 50,11.5 Z"
+                fill="rgba(9, 9, 11, 0.015)"
+              />
+            )}
+
+            {/* Dotted target guide alignment lines */}
+            <line x1="50" y1="10" x2="50" y2="90" stroke="rgba(9, 9, 11, 0.06)" strokeDasharray="2,2" />
+            <line x1="20" y1="50" x2="80" y2="50" stroke="rgba(9, 9, 11, 0.06)" strokeDasharray="2,2" />
+          </svg>
+
+          {/* Fabric canvas element */}
+          <div className="absolute z-10 w-[240px] h-[240px]">
+            <canvas ref={canvasRef} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

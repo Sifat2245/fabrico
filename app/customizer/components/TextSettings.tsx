@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Type, Plus, Trash2, ChevronDown } from 'lucide-react';
 import { TextLayer, CustomizerState } from './types';
 
@@ -18,6 +18,28 @@ interface TextSettingsProps {
   onDeleteTextLayer: (id: string) => void;
 }
 
+const CANVAS_SZ = 240;
+const SCALE_FACTOR = 1024 / CANVAS_SZ; // 4.26666666667
+
+const getFabricFontFamily = (fontStyle: string): string => {
+  if (fontStyle === 'Script') return '"Brush Script MT", cursive';
+  if (fontStyle === 'Block' || fontStyle === 'Cyberpunk' || fontStyle === 'Neon Glow') return '"Courier New", monospace';
+  if (fontStyle === 'Serif Athletic') return '"Georgia", serif';
+  if (fontStyle === 'Gothic') return '"Times New Roman", serif';
+  if (fontStyle === 'Varsity') return '"Arial Black", sans-serif';
+  return 'Impact, sans-serif';
+};
+
+const getFabricFontWeight = (fontStyle: string): "normal" | "bold" => {
+  if (fontStyle === 'Neon Glow' || fontStyle === 'Gothic') return 'normal';
+  return 'bold';
+};
+
+const getFabricFontStyle = (fontStyle: string): "normal" | "italic" => {
+  if (fontStyle === 'Italic') return 'italic';
+  return 'normal';
+};
+
 export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer, onDeleteTextLayer }: TextSettingsProps) {
   const [text, setText] = useState('TEAM NAME');
   const [font, setFont] = useState('Default');
@@ -31,6 +53,37 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
   const [outlineEnabled, setOutlineEnabled] = useState(false);
   const [outlineColor, setOutlineColor] = useState('#FFFFFF');
   const [outlineWidth, setOutlineWidth] = useState(4);
+
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [fabricInstance, setFabricInstance] = useState<any>(null);
+  const isUpdatingFromFabric = useRef(false);
+
+  const selected = state.textLayers.find(l => l.id === selectedId);
+
+  // Bind values dynamically to selected layer if one exists, otherwise local state
+  const currentText = selected ? selected.text : text;
+  const currentFont = selected ? selected.font : font;
+  const currentColor = selected ? selected.color : color;
+  const currentSize = selected ? selected.textSize : size;
+  const currentSide = selected ? selected.side : side;
+  const currentLetterSpacing = selected ? selected.letterSpacing : letterSpacing;
+  const currentCurveRadius = selected ? selected.curveRadius : curveRadius;
+  const currentShadowEnabled = selected ? selected.shadowEnabled : shadowEnabled;
+  const currentOutlineEnabled = selected ? selected.outlineEnabled : outlineEnabled;
+  const currentOutlineColor = selected ? selected.outlineColor : outlineColor;
+  const currentOutlineWidth = selected ? selected.outlineWidth : outlineWidth;
+
+  const onUpdateTextLayerRef = useRef(onUpdateTextLayer);
+  useEffect(() => {
+    onUpdateTextLayerRef.current = onUpdateTextLayer;
+  }, [onUpdateTextLayer]);
+
+  const handleUpdate = (patch: Partial<TextLayer>) => {
+    if (selectedId) {
+      onUpdateTextLayerRef.current(selectedId, patch);
+    }
+  };
 
   const handleAdd = () => {
     if (!text.trim()) return;
@@ -58,19 +111,188 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
       outlineWidth,
     };
     onAddTextLayer(layer);
+    setSelectedId(layer.id);
   };
 
+  // 1. Initialize Fabric Canvas
+  useEffect(() => {
+    let active = true;
+    let canvas: any = null;
+
+    const initFabric = async () => {
+      const fabric = await import('fabric');
+      if (!active || !canvasRef.current) return;
+
+      canvas = new fabric.Canvas(canvasRef.current, {
+        width: CANVAS_SZ,
+        height: CANVAS_SZ,
+        backgroundColor: 'transparent',
+        selection: false,
+        stopContextMenu: true,
+      });
+
+      setFabricInstance(canvas);
+
+      // Handle selections
+      canvas.on('selection:created', (e: any) => {
+        const obj = e.selected?.[0];
+        if (obj && obj.id) {
+          setSelectedId(obj.id);
+        }
+      });
+      canvas.on('selection:updated', (e: any) => {
+        const obj = e.selected?.[0];
+        if (obj && obj.id) {
+          setSelectedId(obj.id);
+        }
+      });
+      canvas.on('selection:cleared', () => {
+        setSelectedId(null);
+      });
+
+      // Handle modification events (moving, scaling, rotating)
+      const handleModify = (e: any) => {
+        const obj = e.target;
+        if (!obj || !obj.id) return;
+
+        isUpdatingFromFabric.current = true;
+
+        const newX = obj.left * SCALE_FACTOR;
+        const newY = obj.top * SCALE_FACTOR;
+        const newScale = obj.scaleX;
+        const newRotation = obj.angle || 0;
+
+        onUpdateTextLayerRef.current(obj.id, {
+          x: newX,
+          y: newY,
+          scale: newScale,
+          rotation: newRotation,
+        });
+
+        setTimeout(() => {
+          isUpdatingFromFabric.current = false;
+        }, 50);
+      };
+
+      canvas.on('object:moving', handleModify);
+      canvas.on('object:scaling', handleModify);
+      canvas.on('object:rotating', handleModify);
+    };
+
+    initFabric();
+
+    return () => {
+      active = false;
+      if (canvas) {
+        canvas.dispose();
+      }
+    };
+  }, [currentSide]);
+
+  // 2. Synchronize text layers with Fabric Canvas objects
+  useEffect(() => {
+    if (!fabricInstance || isUpdatingFromFabric.current) return;
+
+    const canvas = fabricInstance;
+    const canvasObjects = canvas.getObjects();
+    const activeTextLayers = state.textLayers.filter((l) => l.side === currentSide);
+
+    // Remove objects that no longer exist in state
+    canvasObjects.forEach((obj: any) => {
+      if (!obj.id) return;
+      const stillExists = activeTextLayers.some((l) => l.id === obj.id);
+      if (!stillExists) {
+        canvas.remove(obj);
+      }
+    });
+
+    // Add or update objects
+    activeTextLayers.forEach(async (layer) => {
+      const existingObj = canvasObjects.find((obj: any) => obj.id === layer.id);
+
+      const left = layer.x / SCALE_FACTOR;
+      const top = layer.y / SCALE_FACTOR;
+      const scaleX = layer.scale;
+      const scaleY = layer.scale;
+      const angle = layer.rotation;
+      const fontSize = layer.textSize / SCALE_FACTOR;
+
+      if (existingObj) {
+        existingObj.set({
+          text: layer.text,
+          left,
+          top,
+          scaleX,
+          scaleY,
+          angle,
+          fontSize,
+          fill: layer.color,
+          fontFamily: getFabricFontFamily(layer.font),
+          fontWeight: getFabricFontWeight(layer.font),
+          fontStyle: getFabricFontStyle(layer.font),
+        });
+
+        if (layer.id === selectedId) {
+          canvas.setActiveObject(existingObj);
+        } else if (canvas.getActiveObject() === existingObj && selectedId === null) {
+          canvas.discardActiveObject();
+        }
+
+        existingObj.setCoords();
+        canvas.requestRenderAll();
+      } else {
+        const fabric = await import('fabric');
+        const fabricText = new fabric.FabricText(layer.text, {
+          left,
+          top,
+          originX: 'center',
+          originY: 'center',
+          scaleX,
+          scaleY,
+          angle,
+          fontSize,
+          fill: layer.color,
+          fontFamily: getFabricFontFamily(layer.font),
+          fontWeight: getFabricFontWeight(layer.font),
+          fontStyle: getFabricFontStyle(layer.font),
+          cornerColor: '#18181b',
+          cornerStrokeColor: '#ffffff',
+          borderColor: '#18181b',
+          cornerSize: 8,
+          transparentCorners: false,
+        });
+
+        (fabricText as any).id = layer.id;
+        canvas.add(fabricText);
+
+        if (layer.id === selectedId) {
+          canvas.setActiveObject(fabricText);
+        }
+        canvas.requestRenderAll();
+      }
+    });
+
+    canvas.requestRenderAll();
+  }, [fabricInstance, state.textLayers, selectedId, currentSide]);
+
   return (
-    <div className="space-y-4 font-sans text-xs">
+    <div className="space-y-4 font-sans text-xs pb-4">
       <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
         <Type className="w-3.5 h-3.5" /> Custom Printed Text
       </div>
 
-      {/* Side */}
+      {/* Side Selector */}
       <div className="flex bg-zinc-100 p-0.5 rounded-lg border border-zinc-200 text-[10px]">
         {(['Front', 'Back'] as const).map(s => (
-          <button key={s} onClick={() => setSide(s)}
-            className={`flex-1 py-1 rounded-md font-semibold transition-all ${side === s ? 'bg-white text-zinc-950 shadow-sm' : 'text-zinc-500'}`}>
+          <button key={s}
+            onClick={() => {
+              if (selected) {
+                handleUpdate({ side: s });
+              } else {
+                setSide(s);
+              }
+            }}
+            className={`flex-1 py-1 rounded-md font-semibold transition-all ${currentSide === s ? 'bg-white text-zinc-950 shadow-sm' : 'text-zinc-500'}`}>
             {s}
           </button>
         ))}
@@ -79,33 +301,76 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
       {/* Text input */}
       <div className="space-y-1">
         <label className="text-[10px] text-zinc-500 font-semibold">Text</label>
-        <textarea value={text} onChange={e => setText(e.target.value)} rows={2}
+        <textarea
+          value={currentText}
+          onChange={e => {
+            if (selected) {
+              handleUpdate({ text: e.target.value });
+            } else {
+              setText(e.target.value);
+            }
+          }}
+          rows={2}
           placeholder="Enter text (use ↵ for new line)"
-          className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs text-zinc-900 focus:outline-none focus:border-zinc-500 resize-none" />
+          className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs text-zinc-900 focus:outline-none focus:border-zinc-500 resize-none"
+        />
       </div>
 
       {/* Font + Color */}
       <div className="grid grid-cols-2 gap-2">
         <div className="space-y-1">
           <label className="text-[10px] text-zinc-500 font-semibold">Font Style</label>
-          <select value={font} onChange={e => setFont(e.target.value)}
-            className="w-full h-8 bg-zinc-50 border border-zinc-200 rounded-lg px-2 text-[11px] text-zinc-700 focus:outline-none">
+          <select
+            value={currentFont}
+            onChange={e => {
+              if (selected) {
+                handleUpdate({ font: e.target.value });
+              } else {
+                setFont(e.target.value);
+              }
+            }}
+            className="w-full h-8 bg-zinc-50 border border-zinc-200 rounded-lg px-2 text-[11px] text-zinc-700 focus:outline-none"
+          >
             {FONT_STYLES.map(f => <option key={f} value={f}>{f}</option>)}
           </select>
         </div>
         <div className="space-y-1">
           <label className="text-[10px] text-zinc-500 font-semibold">Color</label>
-          <input type="color" value={color} onChange={e => setColor(e.target.value)}
-            className="w-full h-8 border border-zinc-200 rounded-lg cursor-pointer" />
+          <input
+            type="color"
+            value={currentColor}
+            onChange={e => {
+              if (selected) {
+                handleUpdate({ color: e.target.value });
+              } else {
+                setColor(e.target.value);
+              }
+            }}
+            className="w-full h-8 border border-zinc-200 rounded-lg cursor-pointer"
+          />
         </div>
       </div>
 
       {/* Font size */}
       <div className="space-y-1">
         <div className="flex justify-between text-[10px] text-zinc-500">
-          <span>Size</span><span className="font-bold text-zinc-700">{size}px</span>
+          <span>Size</span><span className="font-bold text-zinc-700">{currentSize}px</span>
         </div>
-        <input type="range" min="20" max="200" value={size} onChange={e => setSize(+e.target.value)} className="w-full accent-zinc-950" />
+        <input
+          type="range"
+          min="20"
+          max="200"
+          value={currentSize}
+          onChange={e => {
+            const val = +e.target.value;
+            if (selected) {
+              handleUpdate({ textSize: val });
+            } else {
+              setSize(val);
+            }
+          }}
+          className="w-full accent-zinc-950"
+        />
       </div>
 
       {/* Advanced toggle */}
@@ -120,40 +385,118 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
           {/* Letter spacing */}
           <div className="space-y-1">
             <div className="flex justify-between text-[10px] text-zinc-500">
-              <span>Letter Spacing</span><span className="font-bold text-zinc-700">{letterSpacing}px</span>
+              <span>Letter Spacing</span><span className="font-bold text-zinc-700">{currentLetterSpacing}px</span>
             </div>
-            <input type="range" min="-20" max="80" value={letterSpacing} onChange={e => setLetterSpacing(+e.target.value)} className="w-full accent-zinc-950" />
+            <input
+              type="range"
+              min="-20"
+              max="80"
+              value={currentLetterSpacing}
+              onChange={e => {
+                const val = +e.target.value;
+                if (selected) {
+                  handleUpdate({ letterSpacing: val });
+                } else {
+                  setLetterSpacing(val);
+                }
+              }}
+              className="w-full accent-zinc-950"
+            />
           </div>
 
           {/* Curve */}
           <div className="space-y-1">
             <div className="flex justify-between text-[10px] text-zinc-500">
-              <span>Curve</span><span className="font-bold text-zinc-700">{curveRadius}°</span>
+              <span>Curve</span><span className="font-bold text-zinc-700">{currentCurveRadius}°</span>
             </div>
-            <input type="range" min="-180" max="180" value={curveRadius} onChange={e => setCurveRadius(+e.target.value)} className="w-full accent-zinc-950" />
+            <input
+              type="range"
+              min="-180"
+              max="180"
+              value={currentCurveRadius}
+              onChange={e => {
+                const val = +e.target.value;
+                if (selected) {
+                  handleUpdate({ curveRadius: val });
+                } else {
+                  setCurveRadius(val);
+                }
+              }}
+              className="w-full accent-zinc-950"
+            />
           </div>
 
           {/* Shadow */}
           <label className="flex items-center justify-between cursor-pointer">
             <span className="text-[10px] font-semibold text-zinc-700">Drop Shadow</span>
-            <input type="checkbox" checked={shadowEnabled} onChange={e => setShadowEnabled(e.target.checked)} className="accent-zinc-950 w-4 h-4 cursor-pointer" />
+            <input
+              type="checkbox"
+              checked={currentShadowEnabled}
+              onChange={e => {
+                const val = e.target.checked;
+                if (selected) {
+                  handleUpdate({ shadowEnabled: val });
+                } else {
+                  setShadowEnabled(val);
+                }
+              }}
+              className="accent-zinc-950 w-4 h-4 cursor-pointer"
+            />
           </label>
 
           {/* Outline */}
           <div className="space-y-2">
             <label className="flex items-center justify-between cursor-pointer">
               <span className="text-[10px] font-semibold text-zinc-700">Outline</span>
-              <input type="checkbox" checked={outlineEnabled} onChange={e => setOutlineEnabled(e.target.checked)} className="accent-zinc-950 w-4 h-4 cursor-pointer" />
+              <input
+                type="checkbox"
+                checked={currentOutlineEnabled}
+                onChange={e => {
+                  const val = e.target.checked;
+                  if (selected) {
+                    handleUpdate({ outlineEnabled: val });
+                  } else {
+                    setOutlineEnabled(val);
+                  }
+                }}
+                className="accent-zinc-950 w-4 h-4 cursor-pointer"
+              />
             </label>
-            {outlineEnabled && (
+            {currentOutlineEnabled && (
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <span className="text-[9px] text-zinc-500">Color</span>
-                  <input type="color" value={outlineColor} onChange={e => setOutlineColor(e.target.value)} className="w-full h-7 border border-zinc-200 rounded-lg cursor-pointer" />
+                  <input
+                    type="color"
+                    value={currentOutlineColor}
+                    onChange={e => {
+                      const val = e.target.value;
+                      if (selected) {
+                        handleUpdate({ outlineColor: val });
+                      } else {
+                        setOutlineColor(val);
+                      }
+                    }}
+                    className="w-full h-7 border border-zinc-200 rounded-lg cursor-pointer"
+                  />
                 </div>
                 <div className="space-y-1">
-                  <span className="text-[9px] text-zinc-500">Width ({outlineWidth}px)</span>
-                  <input type="range" min="1" max="20" value={outlineWidth} onChange={e => setOutlineWidth(+e.target.value)} className="w-full accent-zinc-950 mt-1" />
+                  <span className="text-[9px] text-zinc-500">Width ({currentOutlineWidth}px)</span>
+                  <input
+                    type="range"
+                    min="1"
+                    max="20"
+                    value={currentOutlineWidth}
+                    onChange={e => {
+                      const val = +e.target.value;
+                      if (selected) {
+                        handleUpdate({ outlineWidth: val });
+                      } else {
+                        setOutlineWidth(val);
+                      }
+                    }}
+                    className="w-full accent-zinc-950 mt-1"
+                  />
                 </div>
               </div>
             )}
@@ -161,11 +504,22 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
         </div>
       )}
 
-      {/* Add button */}
-      <button onClick={handleAdd}
-        className="w-full py-2.5 px-4 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white font-semibold text-xs transition-all active:scale-98 shadow-sm flex items-center justify-center gap-1.5">
-        <Plus className="w-3.5 h-3.5" /> Add to {side}
-      </button>
+      {/* Add button / Deselect button */}
+      {selected ? (
+        <button
+          onClick={() => setSelectedId(null)}
+          className="w-full py-2.5 px-4 rounded-xl border border-zinc-300 hover:bg-zinc-50 text-zinc-950 font-semibold text-xs transition-all active:scale-98 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+        >
+          <span>Deselect / Create New Text</span>
+        </button>
+      ) : (
+        <button
+          onClick={handleAdd}
+          className="w-full py-2.5 px-4 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white font-semibold text-xs transition-all active:scale-98 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+        >
+          <Plus className="w-3.5 h-3.5" /> Add to {currentSide}
+        </button>
+      )}
 
       {/* List of existing text layers */}
       {state.textLayers.length > 0 && (
@@ -173,21 +527,85 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
           <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
             Text Layers ({state.textLayers.length})
           </div>
-          {state.textLayers.map(l => (
-            <div key={l.id} className="flex items-center justify-between p-2 rounded-xl bg-zinc-50 border border-zinc-200">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-3 h-3 rounded-full border border-zinc-200 flex-shrink-0" style={{ backgroundColor: l.color }} />
-                <span className="text-[10px] font-semibold text-zinc-700 truncate">{l.text}</span>
-                <span className="text-[9px] text-zinc-400 flex-shrink-0">{l.side}</span>
-              </div>
-              <button onClick={() => onDeleteTextLayer(l.id)}
-                className="p-1 text-zinc-400 hover:text-red-500 rounded transition-colors flex-shrink-0">
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ))}
+          <div className="space-y-1.5 max-h-40 overflow-y-auto">
+            {state.textLayers.map(l => {
+              const isSelected = l.id === selectedId;
+              return (
+                <div
+                  key={l.id}
+                  onClick={() => setSelectedId(isSelected ? null : l.id)}
+                  className={`flex items-center justify-between p-2 rounded-xl cursor-pointer border transition-all ${
+                    isSelected ? 'bg-zinc-50 border-zinc-800' : 'bg-white border-zinc-200 hover:bg-zinc-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-3 h-3 rounded-full border border-zinc-200 flex-shrink-0" style={{ backgroundColor: l.color }} />
+                    <span className="text-[10px] font-semibold text-zinc-700 truncate">{l.text}</span>
+                    <span className="text-[9px] text-zinc-400 flex-shrink-0">{l.side}</span>
+                  </div>
+                  <button
+                    onClick={e => {
+                      e.stopPropagation();
+                      onDeleteTextLayer(l.id);
+                      if (selectedId === l.id) setSelectedId(null);
+                    }}
+                    className="p-1 text-zinc-400 hover:text-red-500 rounded transition-colors flex-shrink-0"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
+
+      {/* Visual Text Editor Canvas */}
+      <div className="space-y-2 pt-3 border-t border-zinc-150">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+          Visual Text Editor ({currentSide === 'Front' ? 'Front View' : 'Back View'})
+        </div>
+        <div className="relative w-full aspect-square bg-[#f8f9fa] border border-zinc-200 rounded-2xl overflow-hidden flex items-center justify-center pointer-events-auto">
+          {/* Silhouette overlay vector path behind transparent Fabric.js layer */}
+          <svg
+            className="absolute w-4/5 h-4/5 text-zinc-300 pointer-events-none"
+            viewBox="0 0 100 100"
+            fill="none"
+            stroke="rgba(9, 9, 11, 0.12)"
+            strokeWidth="1.2"
+          >
+            <defs>
+              <pattern id="grid-text" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(9, 9, 11, 0.025)" strokeWidth="0.5" />
+              </pattern>
+            </defs>
+            <rect width="100" height="100" fill="url(#grid-text)" stroke="none" />
+
+            {currentSide === 'Front' ? (
+              // Front Collar Outline
+              <path
+                d="M 50,16 C 43.5,16 38.5,10.5 38.5,10.5 H 24 L 6,26 L 19,38 L 29.5,31 V 88 H 70.5 V 31 L 81,38 L 94,26 L 79.5,10.5 H 61.5 C 61.5,10.5 56.5,16 50,16 Z"
+                fill="rgba(9, 9, 11, 0.015)"
+              />
+            ) : (
+              // Back Collar Outline (Higher horizontal ridge at neckline)
+              <path
+                d="M 50,11.5 C 44.5,11.5 38.5,10.5 38.5,10.5 H 24 L 6,26 L 19,38 L 29.5,31 V 88 H 70.5 V 31 L 81,38 L 94,26 L 79.5,10.5 H 61.5 C 61.5,10.5 55.5,11.5 50,11.5 Z"
+                fill="rgba(9, 9, 11, 0.015)"
+              />
+            )}
+
+            {/* Dotted target guide alignment lines */}
+            <line x1="50" y1="10" x2="50" y2="90" stroke="rgba(9, 9, 11, 0.06)" strokeDasharray="2,2" />
+            <line x1="20" y1="50" x2="80" y2="50" stroke="rgba(9, 9, 11, 0.06)" strokeDasharray="2,2" />
+          </svg>
+
+          {/* Fabric canvas element */}
+          <div className="absolute z-10 w-[240px] h-[240px]">
+            <canvas ref={canvasRef} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

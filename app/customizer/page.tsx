@@ -13,7 +13,7 @@ import DesignsSettings from './components/DesignsSettings';
 import PatternsSettings from './components/PatternsSettings';
 import TextSettings from './components/TextSettings';
 import LogoUploadSettings from './components/LogoUploadSettings';
-import { useCustomizerState } from './hooks/useCustomizerState';
+import { useCustomizerState } from '../../hooks/useCustomizerState';
 import { CustomizerState } from './components/types';
 
 // Lazy-load the 3D viewer so SSR doesn't complain

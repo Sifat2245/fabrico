@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import * as THREE from 'three';
-import { CustomizerState, EraserPath } from '../components/types';
+import { CustomizerState, EraserPath } from '../app/customizer/components/types';
 
 const CANVAS_SIZE = 1024;
 

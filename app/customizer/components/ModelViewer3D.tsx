@@ -12,7 +12,7 @@ import {
 } from '@react-three/drei';
 import * as THREE from 'three';
 import { CustomizerState } from './types';
-import { useJerseyTextures } from '../hooks/useJerseyTextures';
+import { useJerseyTextures } from '../../../hooks/useJerseyTextures';
 
 // ─── Piece classification for tshirt2.glb ────────────────────────────────────
 // The garment is a multi-piece Clo3D-style export:
