@@ -30,16 +30,16 @@ export default function SettingsIconSidebar({
   onTabChange,
 }: SettingsIconSidebarProps) {
   return (
-    <aside className="w-20 h-full bg-[#0a0a0c] border-r border-zinc-800 flex flex-col items-center py-6 gap-6 shrink-0 select-none z-20">
+    <aside className="w-[72px] h-full bg-[#0e0e12] border-r border-white/[0.05] flex flex-col items-center py-5 gap-5 shrink-0 select-none z-20">
       {/* Studio Brand Icon */}
-      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-600/25 text-white">
-        <span className="text-base font-black tracking-tight select-none">F</span>
+      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-violet-600/30 text-white shrink-0">
+        <span className="text-sm font-black tracking-tight select-none">F</span>
       </div>
 
-      <div className="h-px w-8 bg-zinc-800/60" />
+      <div className="h-px w-7 bg-white/[0.07] shrink-0" />
 
       {/* Navigation tabs */}
-      <div className="flex-1 flex flex-col gap-3 w-full px-2 overflow-y-auto">
+      <div className="flex-1 flex flex-col gap-1.5 w-full px-2 overflow-y-auto">
         {TABS.map((tab) => {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;
@@ -47,20 +47,21 @@ export default function SettingsIconSidebar({
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`w-full py-2.5 rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${isActive
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 scale-102 font-bold'
-                  : 'text-zinc-500 hover:text-zinc-200 hover:bg-[#16161a]'
-                }`}
+              className={`w-full py-2.5 rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
+                isActive
+                  ? 'bg-violet-600/90 text-white shadow-md shadow-violet-600/25'
+                  : 'text-slate-500 hover:text-slate-200 hover:bg-white/[0.06]'
+              }`}
               title={tab.label}
             >
-              <Icon className="w-4.5 h-4.5 shrink-0" />
-              <span className="text-[9px] font-semibold tracking-wide">{tab.label}</span>
+              <Icon className="w-[18px] h-[18px] shrink-0" />
+              <span className="text-[9px] font-semibold tracking-wide leading-none">{tab.label}</span>
             </button>
           );
         })}
       </div>
 
-      <div className="text-[9px] font-mono text-zinc-600 font-medium">v1.3.0</div>
+      <div className="text-[8px] font-mono text-slate-700 font-medium pb-1">v1.3</div>
     </aside>
   );
 }
