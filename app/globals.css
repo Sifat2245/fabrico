@@ -219,3 +219,216 @@ body {
     animation-delay: 0s !important;
   }
 }
+
+/* ─── Custom Customizer Fonts ─── */
+
+@font-face {
+  font-family: 'Collegiate';
+  src: url('/fonts/collegiate/COLLEGIA.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Michroma';
+  src: url('/fonts/Michroma/Michroma-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Archivo Narrow';
+  src: url('/fonts/Archivo_Narrow/ArchivoNarrow-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Yellowtail';
+  src: url('/fonts/Yellowtail/Yellowtail-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Pacifico';
+  src: url('/fonts/Pacifico/Pacifico-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('/fonts/Space_Grotesk/SpaceGrotesk-VariableFont_wght.ttf') format('truetype');
+  font-weight: 300 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Berkshire Swash';
+  src: url('/fonts/Berkshire_Swash/BerkshireSwash-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Alfa Slab One';
+  src: url('/fonts/Alfa_Slab_One/AlfaSlabOne-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Aquanix';
+  src: url('/fonts/Aquanix-Font/AQUANIX.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Audiowide';
+  src: url('/fonts/Audiowide/Audiowide-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Bowlby One SC';
+  src: url('/fonts/Bowlby_One_SC/BowlbyOneSC-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Lobster';
+  src: url('/fonts/Lobster/Lobster-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Rye';
+  src: url('/fonts/Rye/Rye-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Racing Sans One';
+  src: url('/fonts/Racing_Sans_One/RacingSansOne-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Righteous';
+  src: url('/fonts/Righteous/Righteous-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Freshman';
+  src: url('/fonts/Freshman.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Varsity Team';
+  src: url('/fonts/varsity_team/VarsityTeam-Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Black Ops One';
+  src: url('/fonts/Black_Ops_One/BlackOpsOne-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Bebas Neue';
+  src: url('/fonts/Bebas_Neue/BebasNeue-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Bungee Outline';
+  src: url('/fonts/Bungee_Outline/BungeeOutline-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Quantico';
+  src: url('/fonts/Quantico/Quantico-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Iceland';
+  src: url('/fonts/Iceland/Iceland-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Russo One';
+  src: url('/fonts/Russo_One/RussoOne-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Roboto Condensed';
+  src: url('/fonts/Roboto_Condensed/RobotoCondensed-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Graduate';
+  src: url('/fonts/Graduate/Graduate-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Oxanium';
+  src: url('/fonts/Oxanium/Oxanium-VariableFont_wght.ttf') format('truetype');
+  font-weight: 200 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Bungee';
+  src: url('/fonts/Bungee/Bungee-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Saira';
+  src: url('/fonts/Saira/Saira-VariableFont_wdth,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Sports World';
+  src: url('/fonts/sports_world/Sports World-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Share Tech';
+  src: url('/fonts/Share_Tech/ShareTech-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Bungee Inline';
+  src: url('/fonts/Bungee_Inline/BungeeInline-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Oswald';
+  src: url('/fonts/Oswald/Oswald-VariableFont_wght.ttf') format('truetype');
+  font-weight: 200 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Satisfy';
+  src: url('/fonts/Satisfy/Satisfy-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Kaushan Script';
+  src: url('/fonts/Kaushan_Script/KaushanScript-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Exo 2';
+  src: url('/fonts/Exo_2/Exo2-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}

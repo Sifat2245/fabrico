@@ -33,6 +33,17 @@ export default function LogoUploadSettings({
   const [addType, setAddType] = useState<'logo' | 'image'>('logo');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   
+  const [uploadedImages, setUploadedImages] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const saved = localStorage.getItem('fabrico_uploaded_images');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  
+  const [selectedUploadedImg, setSelectedUploadedImg] = useState<string | null>(null);
   const [fabricInstance, setFabricInstance] = useState<any>(null);
   const isUpdatingFromFabric = useRef(false);
 
@@ -42,6 +53,11 @@ export default function LogoUploadSettings({
     onUpdateLogoLayerRef.current = onUpdateLogoLayer;
   }, [onUpdateLogoLayer]);
 
+  // Preload uploaded images on mount
+  useEffect(() => {
+    uploadedImages.forEach(src => preloadImage(src));
+  }, [preloadImage, uploadedImages]);
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -49,24 +65,83 @@ export default function LogoUploadSettings({
     reader.onload = (ev) => {
       const src = ev.target?.result as string;
       if (!src) return;
-      const layer: LogoLayer = {
-        id: genId(),
-        type: addType,
-        side: addSide,
-        src,
-        x: 512,
-        y: addSide === 'Front' ? 250 : 250,
-        scale: 1,
-        rotation: 0,
-        opacity: 1,
-        eraserPaths: [],
-      };
+      if (!uploadedImages.includes(src)) {
+        const next = [...uploadedImages, src];
+        setUploadedImages(next);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('fabrico_uploaded_images', JSON.stringify(next));
+        }
+      }
       preloadImage(src);
-      onAddLogoLayer(layer);
-      setSelectedId(layer.id);
+      setSelectedUploadedImg(src);
     };
     reader.readAsDataURL(file);
     e.target.value = '';
+  };
+
+  const deleteUploadedImage = (src: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const next = uploadedImages.filter(p => p !== src);
+    setUploadedImages(next);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('fabrico_uploaded_images', JSON.stringify(next));
+    }
+    if (selectedUploadedImg === src) {
+      setSelectedUploadedImg(null);
+    }
+  };
+
+  const addLayerToSide = (side: 'Front' | 'Back') => {
+    if (!selectedUploadedImg) return;
+    const id = genId();
+    const layer: LogoLayer = {
+      id,
+      type: addType,
+      side: side,
+      src: selectedUploadedImg,
+      x: 512,
+      y: 250,
+      scale: 1,
+      rotation: 0,
+      opacity: 1,
+      eraserPaths: [],
+    };
+    onAddLogoLayer(layer);
+    setSelectedId(id);
+    setAddSide(side); // auto-switch visual canvas editor view
+  };
+
+  const addLayerToBoth = () => {
+    if (!selectedUploadedImg) return;
+    const frontId = genId();
+    const frontLayer: LogoLayer = {
+      id: frontId,
+      type: addType,
+      side: 'Front',
+      src: selectedUploadedImg,
+      x: 512,
+      y: 250,
+      scale: 1,
+      rotation: 0,
+      opacity: 1,
+      eraserPaths: [],
+    };
+    const backId = genId();
+    const backLayer: LogoLayer = {
+      id: backId,
+      type: addType,
+      side: 'Back',
+      src: selectedUploadedImg,
+      x: 512,
+      y: 250,
+      scale: 1,
+      rotation: 0,
+      opacity: 1,
+      eraserPaths: [],
+    };
+    onAddLogoLayer(frontLayer);
+    onAddLogoLayer(backLayer);
+    setSelectedId(addSide === 'Front' ? frontId : backId);
   };
 
   // 1. Initialize Fabric Canvas
@@ -237,45 +312,144 @@ export default function LogoUploadSettings({
       <input type="file" ref={fileInputRef} onChange={handleFileUpload}
         accept="image/png,image/jpeg,image/svg+xml,image/webp" className="hidden" />
 
-      {/* Side + type selector */}
-      <div className="space-y-2">
-        <div className="flex bg-[#16161c] p-0.5 rounded-lg border border-zinc-805 text-[10px]">
+      {/* Asset Library Uploader */}
+      <div className="space-y-2.5 p-3 bg-[#16161c] border border-zinc-800 rounded-xl">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+          Upload Image Library
+        </div>
+
+        {/* Beautiful upload dropzone button */}
+        <div 
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full border-2 border-dashed border-zinc-800 hover:border-indigo-500/50 hover:bg-[#1c1c28]/40 transition-all rounded-xl p-4 flex flex-col items-center justify-center gap-1.5 cursor-pointer group"
+        >
+          <div className="w-8 h-8 rounded-full bg-[#111115] border border-zinc-800 flex items-center justify-center group-hover:bg-indigo-650/10 group-hover:border-indigo-500/30 transition-all">
+            <Upload className="w-4 h-4 text-zinc-500 group-hover:text-indigo-400 transition-all" />
+          </div>
+          <div className="text-[10px] font-semibold text-zinc-450 group-hover:text-zinc-200 transition-all">
+            Upload Image asset
+          </div>
+          <div className="text-[8px] text-zinc-600">
+            PNG, JPEG, SVG, WebP
+          </div>
+        </div>
+
+        {/* Uploaded assets grid */}
+        {uploadedImages.length > 0 && (
+          <div className="space-y-1.5 mt-2">
+            <div className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider">Uploaded Assets</div>
+            <div className="grid grid-cols-4 gap-1.5 max-h-28 overflow-y-auto pr-1">
+              {uploadedImages.map((src, idx) => {
+                const isSelected = selectedUploadedImg === src;
+                const appliedFront = state.logoLayers.some(l => l.src === src && l.side === 'Front');
+                const appliedBack = state.logoLayers.some(l => l.src === src && l.side === 'Back');
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => setSelectedUploadedImg(isSelected ? null : src)}
+                    className={`relative aspect-square rounded-lg border-2 overflow-hidden cursor-pointer transition-all hover:scale-[1.03] bg-[#0c0c0f] ${
+                      isSelected ? 'border-indigo-500 ring-2 ring-indigo-500/20' : 'border-zinc-800 hover:border-zinc-700'
+                    }`}
+                  >
+                    <img src={src} alt="Uploaded logo" className="w-full h-full object-contain p-1 opacity-85 hover:opacity-100" />
+                    
+                    {/* Indicators for Front/Back applied */}
+                    <div className="absolute bottom-0.5 left-0.5 right-0.5 flex gap-0.5">
+                      {appliedFront && (
+                        <span className="bg-indigo-600 text-white text-[7px] font-bold px-1 rounded-sm scale-90 origin-bottom-left">
+                          F
+                        </span>
+                      )}
+                      {appliedBack && (
+                        <span className="bg-violet-650 text-white text-[7px] font-bold px-1 rounded-sm scale-90 origin-bottom-left">
+                          B
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Selected asset action box */}
+        {selectedUploadedImg && (
+          <div className="mt-2.5 pt-2.5 border-t border-zinc-800 space-y-2.5">
+            {/* Placement Type choice */}
+            <div className="space-y-1">
+              <span className="text-[9px] text-zinc-500 font-semibold uppercase">Placement Type</span>
+              <div className="flex bg-[#111115] p-0.5 rounded-lg border border-zinc-800 text-[9px]">
+                <button 
+                  onClick={() => setAddType('logo')}
+                  className={`flex-1 py-1 rounded-md font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer ${addType === 'logo' ? 'bg-indigo-600 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
+                >
+                  <Layers className="w-2.5 h-2.5" /> 3D Decal
+                </button>
+                <button 
+                  onClick={() => setAddType('image')}
+                  className={`flex-1 py-1 rounded-md font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer ${addType === 'image' ? 'bg-indigo-600 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
+                >
+                  <ImageIcon className="w-2.5 h-2.5" /> Flat Image
+                </button>
+              </div>
+            </div>
+
+            {/* Placement target actions */}
+            <div className="space-y-1">
+              <span className="text-[9px] text-zinc-500 font-semibold uppercase">Place on Shirt</span>
+              <div className="flex gap-1.5">
+                <button
+                  onClick={() => addLayerToSide('Front')}
+                  className="flex-1 py-1 rounded-lg text-[9px] font-bold bg-[#16161c] border border-zinc-800 text-zinc-300 hover:border-zinc-700 transition-all cursor-pointer"
+                >
+                  Front
+                </button>
+                <button
+                  onClick={() => addLayerToSide('Back')}
+                  className="flex-1 py-1 rounded-lg text-[9px] font-bold bg-[#16161c] border border-zinc-800 text-zinc-300 hover:border-zinc-700 transition-all cursor-pointer"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={addLayerToBoth}
+                  className="flex-1 py-1 rounded-lg text-[9px] font-bold bg-[#20202e] border border-zinc-800 text-indigo-400 hover:bg-[#252538] transition-all cursor-pointer"
+                >
+                  Both
+                </button>
+                <button
+                  onClick={(e) => deleteUploadedImage(selectedUploadedImg, e)}
+                  className="px-2 py-1 rounded-lg bg-red-950/20 border border-red-900/30 text-red-400 hover:bg-red-900/25 transition-all cursor-pointer animate-pulse"
+                  title="Remove asset from gallery"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Side selector for visual positioning editor */}
+      <div className="space-y-1 pt-2 border-t border-zinc-800">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">
+          Select View to Position
+        </div>
+        <div className="flex bg-[#16161c] p-0.5 rounded-lg border border-zinc-800 text-[10px]">
           {(['Front', 'Back'] as const).map(s => (
             <button key={s} onClick={() => setAddSide(s)}
               className={`flex-1 py-1 rounded-md font-semibold transition-all cursor-pointer ${addSide === s ? 'bg-indigo-600 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}>
-              {s}
+              {s} View Editor
             </button>
           ))}
         </div>
-
-        {/* Type: logo (3D projection) vs image (canvas) */}
-        <div className="flex bg-[#16161c] p-0.5 rounded-lg border border-zinc-805 text-[10px]">
-          <button onClick={() => setAddType('logo')}
-            className={`flex-1 py-1 rounded-md font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer ${addType === 'logo' ? 'bg-indigo-600 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}>
-            <Layers className="w-3 h-3" /> 3D Decal
-          </button>
-          <button onClick={() => setAddType('image')}
-            className={`flex-1 py-1 rounded-md font-semibold flex items-center justify-center gap-1 transition-all cursor-pointer ${addType === 'image' ? 'bg-indigo-600 text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}>
-            <ImageIcon className="w-3 h-3" /> Flat Image
-          </button>
-        </div>
-        <p className="text-[9px] text-zinc-550 leading-relaxed">
-          {addType === 'logo' ? '3D Decal: rendered onto the shirt body texture.' : 'Flat Image: rendered directly on the fabric canvas texture.'}
-        </p>
       </div>
-
-      {/* Upload button */}
-      <button onClick={() => fileInputRef.current?.click()}
-        className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-md shadow-indigo-650/10 transition-all active:scale-98 cursor-pointer">
-        <Upload className="w-4 h-4" />
-        <span>Upload Image</span>
-      </button>
 
       {/* Layer list */}
       {sortedLayers.length > 0 && (
         <div className="space-y-2 pt-2 border-t border-zinc-800">
           <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-            Logo Layers ({sortedLayers.length})
+            Placed Layers ({sortedLayers.length})
           </div>
           <div className="space-y-1.5 max-h-40 overflow-y-auto">
             {sortedLayers.map(l => {
@@ -286,15 +460,15 @@ export default function LogoUploadSettings({
                     isSelected ? 'bg-[#1e1e28] border-indigo-600 shadow-sm shadow-indigo-650/10' : 'bg-[#16161c] border-zinc-800 hover:bg-[#1a1a24]'
                   }`}>
                   <div className="flex items-center gap-2 min-w-0">
-                    <img src={l.src} alt="Logo" className="w-6 h-6 object-contain rounded bg-[#131317] border border-zinc-800 flex-shrink-0" />
+                    <img src={l.src} alt="Placed logo" className="w-6 h-6 object-contain rounded bg-[#131317] border border-zinc-800 flex-shrink-0" />
                     <div className="min-w-0">
                       <div className="text-[10px] font-semibold text-zinc-200 truncate">{l.type === 'logo' ? '3D Decal' : 'Flat'} · {l.side}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-0.5 flex-shrink-0">
-                    <button onClick={e => { e.stopPropagation(); onMoveLayer(l.id, 'up'); }} className="p-0.5 text-zinc-500 hover:text-zinc-205 rounded"><ChevronUp className="w-3.5 h-3.5" /></button>
-                    <button onClick={e => { e.stopPropagation(); onMoveLayer(l.id, 'down'); }} className="p-0.5 text-zinc-500 hover:text-zinc-205 rounded"><ChevronDown className="w-3.5 h-3.5" /></button>
-                    <button onClick={e => { e.stopPropagation(); onDeleteLogoLayer(l.id); if (selectedId === l.id) setSelectedId(null); }} className="p-0.5 text-zinc-500 hover:text-red-400 rounded"><Trash2 className="w-3.5 h-3.5" /></button>
+                    <button onClick={e => { e.stopPropagation(); onMoveLayer(l.id, 'up'); }} className="p-0.5 text-zinc-500 hover:text-zinc-200 rounded cursor-pointer"><ChevronUp className="w-3.5 h-3.5" /></button>
+                    <button onClick={e => { e.stopPropagation(); onMoveLayer(l.id, 'down'); }} className="p-0.5 text-zinc-500 hover:text-zinc-200 rounded cursor-pointer"><ChevronDown className="w-3.5 h-3.5" /></button>
+                    <button onClick={e => { e.stopPropagation(); onDeleteLogoLayer(l.id); if (selectedId === l.id) setSelectedId(null); }} className="p-0.5 text-zinc-500 hover:text-red-400 rounded cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                 </div>
               );
@@ -345,7 +519,7 @@ export default function LogoUploadSettings({
       {/* Visual Logo Editor Canvas */}
       <div className="space-y-2 pt-3 border-t border-zinc-800">
         <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-          Visual Logo Editor ({addSide === 'Front' ? 'Front View' : 'Back View'})
+          Visual Placement Editor ({addSide === 'Front' ? 'Front View' : 'Back View'})
         </div>
         <div className="relative w-full aspect-square bg-[#16161a] border border-zinc-800 rounded-2xl overflow-hidden flex items-center justify-center pointer-events-auto">
           {/* Silhouette overlay vector path behind transparent Fabric.js layer */}

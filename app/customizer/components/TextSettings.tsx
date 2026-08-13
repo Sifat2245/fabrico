@@ -4,9 +4,60 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Type, Plus, Trash2, ChevronDown } from 'lucide-react';
 import { TextLayer, CustomizerState } from './types';
 
-const FONT_STYLES = [
+const LEGACY_FONT_STYLES = [
   'Default', 'Italic', 'Script', 'Block', 'Varsity',
   'Serif Athletic', 'Cyberpunk', 'Neon Glow', 'Gothic', 'Outline'
+];
+
+const CUSTOM_FONTS = [
+  'Alfa Slab One',
+  'Aquanix',
+  'Archivo Narrow',
+  'Audiowide',
+  'Bebas Neue',
+  'Berkshire Swash',
+  'Black Ops One',
+  'Bowlby One SC',
+  'Bungee',
+  'Bungee Inline',
+  'Bungee Outline',
+  'Collegiate',
+  'Exo 2',
+  'Freshman',
+  'Graduate',
+  'Iceland',
+  'Kaushan Script',
+  'Lobster',
+  'Michroma',
+  'Oswald',
+  'Oxanium',
+  'Pacifico',
+  'Quantico',
+  'Racing Sans One',
+  'Righteous',
+  'Roboto Condensed',
+  'Russo One',
+  'Rye',
+  'Saira',
+  'Satisfy',
+  'Share Tech',
+  'Space Grotesk',
+  'Sports World',
+  'Varsity Team',
+  'Yellowtail'
+];
+
+const FONT_STYLES = [...LEGACY_FONT_STYLES, ...CUSTOM_FONTS];
+
+const FONT_WEIGHTS = [
+  { label: 'Thin (100)', value: '100' },
+  { label: 'Light (300)', value: '300' },
+  { label: 'Regular (400)', value: '400' },
+  { label: 'Medium (500)', value: '500' },
+  { label: 'Semi-Bold (600)', value: '600' },
+  { label: 'Bold (700)', value: '700' },
+  { label: 'Extra Bold (800)', value: '800' },
+  { label: 'Black (900)', value: '900' }
 ];
 
 function genId() { return `text_${Date.now()}_${Math.random().toString(36).slice(2,6)}`; }
@@ -27,7 +78,8 @@ const getFabricFontFamily = (fontStyle: string): string => {
   if (fontStyle === 'Serif Athletic') return '"Georgia", serif';
   if (fontStyle === 'Gothic') return '"Times New Roman", serif';
   if (fontStyle === 'Varsity') return '"Arial Black", sans-serif';
-  return 'Impact, sans-serif';
+  if (fontStyle === 'Default' || fontStyle === 'Outline' || fontStyle === 'Italic') return 'Impact, sans-serif';
+  return `"${fontStyle}"`;
 };
 
 const getFabricFontWeight = (fontStyle: string): "normal" | "bold" => {
@@ -38,6 +90,111 @@ const getFabricFontWeight = (fontStyle: string): "normal" | "bold" => {
 const getFabricFontStyle = (fontStyle: string): "normal" | "italic" => {
   if (fontStyle === 'Italic') return 'italic';
   return 'normal';
+};
+
+const overrideFabricTextRender = (obj: any) => {
+  obj._renderOverridden = true;
+  obj._render = function(ctx: CanvasRenderingContext2D) {
+    const text = this.text || '';
+    const curveRadius = this.curveRadius || 0;
+    const letterSpacing = this.letterSpacing || 0;
+    const isOutline = this.fontFamily === 'Outline';
+    const isNeon = this.fontFamily === 'Neon Glow';
+
+    ctx.font = `${this.fontStyle || 'normal'} ${this.fontWeight || 'normal'} ${this.fontSize}px ${this.fontFamily}`;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+
+    if (isNeon) {
+      ctx.shadowColor = this.fill as string;
+      ctx.shadowBlur = Math.max(12, this.fontSize * 0.18);
+      ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+    } else if (this.shadowEnabled) {
+      ctx.shadowColor = this.shadowColor || '#000';
+      ctx.shadowBlur = this.shadowBlur || 10;
+      ctx.shadowOffsetX = this.shadowOffsetX || 4;
+      ctx.shadowOffsetY = this.shadowOffsetY || 4;
+    } else {
+      ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+    }
+
+    const lines = text.split('\n');
+    const lineH = this.fontSize * (this.lineHeight || 1.15);
+    const totalH = (lines.length - 1) * lineH;
+    const vOff = -totalH / 2;
+
+    lines.forEach((line: string, li: number) => {
+      const curY = vOff + li * lineH;
+
+      if (Math.abs(curveRadius) > 0.01) {
+        const sweepAngle = Math.abs(curveRadius) * Math.PI / 180;
+        
+        let totalWidth = 0;
+        const charWidths: number[] = [];
+        for (let i = 0; i < line.length; i++) {
+          const w = ctx.measureText(line[i]).width;
+          charWidths.push(w);
+          totalWidth += w;
+          if (i < line.length - 1) {
+            totalWidth += letterSpacing;
+          }
+        }
+
+        const R = totalWidth / sweepAngle;
+        const sign = curveRadius > 0 ? 1 : -1;
+
+        let currentDist = 0;
+        for (let i = 0; i < line.length; i++) {
+          const charW = charWidths[i];
+          const distToCenter = currentDist + charW / 2;
+          const alpha = -sweepAngle / 2 + (distToCenter / totalWidth) * sweepAngle;
+
+          const cx = R * Math.sin(alpha);
+          const cy = sign * (R - R * Math.cos(alpha)) + curY;
+
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(alpha);
+
+          ctx.textBaseline = 'middle';
+          ctx.textAlign = 'center';
+
+          if (this.outlineEnabled) {
+            ctx.strokeStyle = this.outlineColor || '#FFF';
+            ctx.lineWidth = this.outlineWidth || 4;
+            ctx.strokeText(line[i], 0, 0);
+          } else if (isOutline) {
+            ctx.strokeStyle = this.fill as string;
+            ctx.lineWidth = Math.max(2, this.fontSize * 0.04);
+            ctx.strokeText(line[i], 0, 0);
+          }
+
+          if (!isOutline) {
+            ctx.fillStyle = this.fill as string;
+            ctx.fillText(line[i], 0, 0);
+          }
+
+          ctx.restore();
+          currentDist += charW + letterSpacing;
+        }
+      } else {
+        if (this.outlineEnabled) {
+          ctx.strokeStyle = this.outlineColor || '#FFF';
+          ctx.lineWidth = this.outlineWidth || 4;
+          ctx.strokeText(line, 0, curY);
+        } else if (isOutline) {
+          ctx.strokeStyle = this.fill as string;
+          ctx.lineWidth = Math.max(2, this.fontSize * 0.04);
+          ctx.strokeText(line, 0, curY);
+        }
+
+        if (!isOutline) {
+          ctx.fillStyle = this.fill as string;
+          ctx.fillText(line, 0, curY);
+        }
+      }
+    });
+  };
 };
 
 export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer, onDeleteTextLayer }: TextSettingsProps) {
@@ -53,6 +210,7 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
   const [outlineEnabled, setOutlineEnabled] = useState(false);
   const [outlineColor, setOutlineColor] = useState('#FFFFFF');
   const [outlineWidth, setOutlineWidth] = useState(4);
+  const [fontWeight, setFontWeight] = useState('700');
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -73,6 +231,7 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
   const currentOutlineEnabled = selected ? selected.outlineEnabled : outlineEnabled;
   const currentOutlineColor = selected ? selected.outlineColor : outlineColor;
   const currentOutlineWidth = selected ? selected.outlineWidth : outlineWidth;
+  const currentFontWeight = selected ? (selected.fontWeight || '700').toString() : fontWeight;
 
   const onUpdateTextLayerRef = useRef(onUpdateTextLayer);
   useEffect(() => {
@@ -109,6 +268,7 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
       outlineEnabled,
       outlineColor,
       outlineWidth,
+      fontWeight: currentFontWeight,
     };
     onAddTextLayer(layer);
     setSelectedId(layer.id);
@@ -228,9 +388,25 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
           fontSize,
           fill: layer.color,
           fontFamily: getFabricFontFamily(layer.font),
-          fontWeight: getFabricFontWeight(layer.font),
+          fontWeight: layer.fontWeight || getFabricFontWeight(layer.font),
           fontStyle: getFabricFontStyle(layer.font),
         });
+
+        // Set custom properties
+        (existingObj as any).curveRadius = layer.curveRadius;
+        (existingObj as any).letterSpacing = layer.letterSpacing;
+        (existingObj as any).outlineEnabled = layer.outlineEnabled;
+        (existingObj as any).outlineColor = layer.outlineColor;
+        (existingObj as any).outlineWidth = layer.outlineWidth;
+        (existingObj as any).shadowEnabled = layer.shadowEnabled;
+        (existingObj as any).shadowColor = layer.shadowColor;
+        (existingObj as any).shadowBlur = layer.shadowBlur;
+        (existingObj as any).shadowOffsetX = layer.shadowOffsetX;
+        (existingObj as any).shadowOffsetY = layer.shadowOffsetY;
+
+        if (!(existingObj as any)._renderOverridden) {
+          overrideFabricTextRender(existingObj);
+        }
 
         if (layer.id === selectedId) {
           canvas.setActiveObject(existingObj);
@@ -253,7 +429,7 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
           fontSize,
           fill: layer.color,
           fontFamily: getFabricFontFamily(layer.font),
-          fontWeight: getFabricFontWeight(layer.font),
+          fontWeight: layer.fontWeight || getFabricFontWeight(layer.font),
           fontStyle: getFabricFontStyle(layer.font),
           cornerColor: '#6366f1',
           cornerStrokeColor: '#ffffff',
@@ -263,6 +439,21 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
         });
 
         (fabricText as any).id = layer.id;
+
+        // Set custom properties
+        (fabricText as any).curveRadius = layer.curveRadius;
+        (fabricText as any).letterSpacing = layer.letterSpacing;
+        (fabricText as any).outlineEnabled = layer.outlineEnabled;
+        (fabricText as any).outlineColor = layer.outlineColor;
+        (fabricText as any).outlineWidth = layer.outlineWidth;
+        (fabricText as any).shadowEnabled = layer.shadowEnabled;
+        (fabricText as any).shadowColor = layer.shadowColor;
+        (fabricText as any).shadowBlur = layer.shadowBlur;
+        (fabricText as any).shadowOffsetX = layer.shadowOffsetX;
+        (fabricText as any).shadowOffsetY = layer.shadowOffsetY;
+
+        overrideFabricTextRender(fabricText);
+
         canvas.add(fabricText);
 
         if (layer.id === selectedId) {
@@ -274,6 +465,22 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
 
     canvas.requestRenderAll();
   }, [fabricInstance, state.textLayers, selectedId, currentSide]);
+
+  // 3. Pre-load all custom fonts when the component mounts
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    CUSTOM_FONTS.forEach(font => {
+      if (document.fonts) {
+        document.fonts.load(`12px "${font}"`).then(() => {
+          if (fabricInstance) {
+            fabricInstance.requestRenderAll();
+          }
+        }).catch(err => {
+          console.warn(`Failed to preload font: ${font}`, err);
+        });
+      }
+    });
+  }, [fabricInstance]);
 
   return (
     <div className="space-y-4 font-sans text-xs pb-4 text-slate-300">
@@ -331,7 +538,20 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
             }}
             className="w-full h-8 bg-[#1c1c26] border border-white/[0.06] rounded-lg px-2 text-[11px] text-slate-300 focus:outline-none focus:border-violet-500"
           >
-            {FONT_STYLES.map(f => <option key={f} value={f} className="bg-[#1c1c26]">{f}</option>)}
+            <optgroup label="System/Legacy Fonts" className="bg-[#16161a]">
+              {LEGACY_FONT_STYLES.map(f => (
+                <option key={f} value={f} className="bg-[#1c1c26]">
+                  {f}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Custom Premium Fonts" className="bg-[#16161a]">
+              {CUSTOM_FONTS.map(f => (
+                <option key={f} value={f} style={{ fontFamily: `"${f}", sans-serif` }} className="bg-[#1c1c26]">
+                  {f}
+                </option>
+              ))}
+            </optgroup>
           </select>
         </div>
         <div className="space-y-1">
@@ -351,10 +571,70 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
         </div>
       </div>
 
-      {/* Font size */}
+      {/* Boldness (Font Weight) */}
       <div className="space-y-1">
-        <div className="flex justify-between text-[10px] text-slate-500">
-          <span>Size</span><span className="font-bold text-slate-300">{currentSize}px</span>
+        <label className="text-[10px] text-slate-500 font-semibold">Boldness (Font Weight)</label>
+        <select
+          value={currentFontWeight}
+          onChange={e => {
+            const val = e.target.value;
+            if (selected) {
+              handleUpdate({ fontWeight: val });
+            } else {
+              setFontWeight(val);
+            }
+          }}
+          className="w-full h-8 bg-[#1c1c26] border border-white/[0.06] rounded-lg px-2 text-[11px] text-slate-300 focus:outline-none focus:border-violet-500"
+        >
+          {FONT_WEIGHTS.map(fw => (
+            <option key={fw.value} value={fw.value} className="bg-[#1c1c26]">
+              {fw.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Font size */}
+      <div className="space-y-1.5">
+        <div className="flex justify-between items-center text-[10px] text-slate-500">
+          <span className="font-semibold">Size</span>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => {
+                const val = Math.max(20, currentSize - 5);
+                if (selected) handleUpdate({ textSize: val });
+                else setSize(val);
+              }}
+              className="w-5 h-5 bg-[#1c1c26] hover:bg-zinc-800 border border-white/[0.06] rounded flex items-center justify-center font-bold text-slate-300 transition-colors cursor-pointer"
+            >
+              -
+            </button>
+            <input
+              type="number"
+              min="20"
+              max="200"
+              value={currentSize}
+              onChange={e => {
+                let val = parseInt(e.target.value, 10);
+                if (isNaN(val)) return;
+                val = Math.max(20, Math.min(200, val));
+                if (selected) handleUpdate({ textSize: val });
+                else setSize(val);
+              }}
+              className="w-12 bg-[#1c1c26] border border-white/[0.06] rounded px-1 py-0.5 text-center font-bold text-slate-300 focus:outline-none focus:border-violet-500"
+            />
+            <button
+              onClick={() => {
+                const val = Math.min(200, currentSize + 5);
+                if (selected) handleUpdate({ textSize: val });
+                else setSize(val);
+              }}
+              className="w-5 h-5 bg-[#1c1c26] hover:bg-zinc-800 border border-white/[0.06] rounded flex items-center justify-center font-bold text-slate-300 transition-colors cursor-pointer"
+            >
+              +
+            </button>
+            <span className="text-slate-500 ml-0.5 font-medium">px</span>
+          </div>
         </div>
         <input
           type="range"
@@ -371,6 +651,95 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
           }}
           className="w-full accent-violet-500 h-1.5 bg-[#1c1c26] rounded-lg appearance-none cursor-pointer"
         />
+      </div>
+
+      {/* Curvature (Text Effects) */}
+      <div className="space-y-1.5">
+        <div className="flex justify-between items-center text-[10px] text-slate-500">
+          <span className="font-semibold">Text Curvature (Round Shaped)</span>
+          <div className="flex items-center gap-1">
+            <input
+              type="number"
+              min="-180"
+              max="180"
+              value={currentCurveRadius}
+              onChange={e => {
+                let val = parseInt(e.target.value, 10);
+                if (isNaN(val)) return;
+                val = Math.max(-180, Math.min(180, val));
+                if (selected) {
+                  handleUpdate({ curveRadius: val });
+                } else {
+                  setCurveRadius(val);
+                }
+              }}
+              className="w-12 bg-[#1c1c26] border border-white/[0.06] rounded px-1.5 py-0.5 text-right font-bold text-slate-300 focus:outline-none focus:border-violet-500"
+            />
+            <span className="text-slate-600 font-medium">°</span>
+          </div>
+        </div>
+
+        {/* Preset curve buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              if (selected) handleUpdate({ curveRadius: -60 });
+              else setCurveRadius(-60);
+            }}
+            className={`flex-1 py-1 rounded-lg text-[10px] font-semibold transition-all border cursor-pointer ${
+              currentCurveRadius === -60
+                ? 'bg-violet-600/20 border-violet-500 text-violet-300'
+                : 'bg-[#1c1c26] border-white/[0.06] text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Curve Up
+          </button>
+          <button
+            onClick={() => {
+              if (selected) handleUpdate({ curveRadius: 0 });
+              else setCurveRadius(0);
+            }}
+            className={`flex-1 py-1 rounded-lg text-[10px] font-semibold transition-all border cursor-pointer ${
+              currentCurveRadius === 0
+                ? 'bg-violet-600/20 border-violet-500 text-violet-300'
+                : 'bg-[#1c1c26] border-white/[0.06] text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Flat (None)
+          </button>
+          <button
+            onClick={() => {
+              if (selected) handleUpdate({ curveRadius: 60 });
+              else setCurveRadius(60);
+            }}
+            className={`flex-1 py-1 rounded-lg text-[10px] font-semibold transition-all border cursor-pointer ${
+              currentCurveRadius === 60
+                ? 'bg-violet-600/20 border-violet-500 text-violet-300'
+                : 'bg-[#1c1c26] border-white/[0.06] text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            Curve Down
+          </button>
+        </div>
+
+        {/* Curve range slider */}
+        <div className="flex items-center gap-2">
+          <input
+            type="range"
+            min="-180"
+            max="180"
+            value={currentCurveRadius}
+            onChange={e => {
+              const val = +e.target.value;
+              if (selected) {
+                handleUpdate({ curveRadius: val });
+              } else {
+                setCurveRadius(val);
+              }
+            }}
+            className="w-full accent-violet-500 h-1.5 bg-[#1c1c26] rounded-lg appearance-none cursor-pointer"
+          />
+        </div>
       </div>
 
       {/* Advanced toggle */}
@@ -398,28 +767,6 @@ export default function TextSettings({ state, onAddTextLayer, onUpdateTextLayer,
                   handleUpdate({ letterSpacing: val });
                 } else {
                   setLetterSpacing(val);
-                }
-              }}
-              className="w-full accent-violet-500 h-1.5 bg-[#1c1c26] rounded-lg appearance-none cursor-pointer"
-            />
-          </div>
-
-          {/* Curve */}
-          <div className="space-y-1">
-            <div className="flex justify-between text-[10px] text-slate-500">
-              <span>Curve</span><span className="font-bold text-slate-300">{currentCurveRadius}°</span>
-            </div>
-            <input
-              type="range"
-              min="-180"
-              max="180"
-              value={currentCurveRadius}
-              onChange={e => {
-                const val = +e.target.value;
-                if (selected) {
-                  handleUpdate({ curveRadius: val });
-                } else {
-                  setCurveRadius(val);
                 }
               }}
               className="w-full accent-violet-500 h-1.5 bg-[#1c1c26] rounded-lg appearance-none cursor-pointer"

@@ -8,7 +8,7 @@ const CANVAS_SIZE = 1024;
 
 // ─── Text rendering ──────────────────────────────────────────────────────────
 
-function getFontString(size: number, fontStyle: string): string {
+function getFontString(size: number, fontStyle: string, fontWeight: string | number = '700'): string {
   if (fontStyle === 'Italic') return `italic 900 ${size}px Impact, sans-serif`;
   if (fontStyle === 'Script') return `bold ${size}px "Brush Script MT", cursive`;
   if (fontStyle === 'Block') return `900 ${size}px "Courier New", monospace`;
@@ -17,19 +17,16 @@ function getFontString(size: number, fontStyle: string): string {
   if (fontStyle === 'Cyberpunk') return `900 ${size}px "Courier New", monospace`;
   if (fontStyle === 'Neon Glow') return `400 ${size}px "Courier New", monospace`;
   if (fontStyle === 'Gothic') return `400 ${size}px "Times New Roman", serif`;
-  return `900 ${size}px Impact, sans-serif`;
+  if (fontStyle === 'Outline') return `${fontWeight} ${size}px Impact, sans-serif`;
+  if (fontStyle === 'Default') return `${fontWeight} ${size}px Impact, sans-serif`;
+  return `${fontWeight} ${size}px "${fontStyle}", sans-serif`;
 }
 
-function drawTextLayer(ctx: CanvasRenderingContext2D, layer: {
-  text: string; font: string; textSize: number; color: string;
-  x: number; y: number; scale: number; rotation: number;
-  letterSpacing: number; lineSpacing: number; curveRadius: number;
-  shadowEnabled: boolean; shadowColor: string; shadowBlur: number;
-  shadowOffsetX: number; shadowOffsetY: number;
-  outlineEnabled: boolean; outlineColor: string; outlineWidth: number;
-}) {
+function drawTextLayer(ctx: CanvasRenderingContext2D, layer: any) {
   const isOutline = layer.font === 'Outline';
   const isNeon = layer.font === 'Neon Glow';
+  const weight = layer.fontWeight || '700';
+
   ctx.save();
   ctx.translate(layer.x, layer.y);
   ctx.rotate((layer.rotation * Math.PI) / 180);
@@ -40,9 +37,9 @@ function drawTextLayer(ctx: CanvasRenderingContext2D, layer: {
   const totalH = (rawLines.length - 1) * lineH;
   const vOff = -totalH / 2;
 
-  rawLines.forEach((line, li) => {
+  rawLines.forEach((line: string, li: number) => {
     const curY = vOff + li * lineH;
-    ctx.font = getFontString(layer.textSize, layer.font);
+    ctx.font = getFontString(layer.textSize, layer.font, weight);
     ctx.textBaseline = 'middle';
     ctx.textAlign = 'center';
 
@@ -59,19 +56,75 @@ function drawTextLayer(ctx: CanvasRenderingContext2D, layer: {
       ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
     }
 
-    if (layer.outlineEnabled) {
-      ctx.strokeStyle = layer.outlineColor || '#FFF';
-      ctx.lineWidth = layer.outlineWidth || 4;
-      ctx.strokeText(line, 0, curY);
-    } else if (isOutline) {
-      ctx.strokeStyle = layer.color;
-      ctx.lineWidth = Math.max(2, layer.textSize * 0.04);
-      ctx.strokeText(line, 0, curY);
-    }
+    if (Math.abs(layer.curveRadius) > 0.01) {
+      const sweepAngle = Math.abs(layer.curveRadius) * Math.PI / 180;
+      
+      // Calculate individual character widths
+      let totalWidth = 0;
+      const charWidths: number[] = [];
+      for (let i = 0; i < line.length; i++) {
+        const w = ctx.measureText(line[i]).width;
+        charWidths.push(w);
+        totalWidth += w;
+        if (i < line.length - 1) {
+          totalWidth += layer.letterSpacing;
+        }
+      }
 
-    if (!isOutline) {
-      ctx.fillStyle = layer.color;
-      ctx.fillText(line, 0, curY);
+      const R = totalWidth / sweepAngle;
+      const sign = layer.curveRadius > 0 ? 1 : -1;
+
+      let currentDist = 0;
+      for (let i = 0; i < line.length; i++) {
+        const charW = charWidths[i];
+        const distToCenter = currentDist + charW / 2;
+        const alpha = -sweepAngle / 2 + (distToCenter / totalWidth) * sweepAngle;
+
+        // Position coordinates along the arc relative to the layout baseline
+        const cx = R * Math.sin(alpha);
+        const cy = sign * (R - R * Math.cos(alpha)) + curY;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(alpha);
+
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center';
+
+        if (layer.outlineEnabled) {
+          ctx.strokeStyle = layer.outlineColor || '#FFF';
+          ctx.lineWidth = layer.outlineWidth || 4;
+          ctx.strokeText(line[i], 0, 0);
+        } else if (isOutline) {
+          ctx.strokeStyle = layer.color;
+          ctx.lineWidth = Math.max(2, layer.textSize * 0.04);
+          ctx.strokeText(line[i], 0, 0);
+        }
+
+        if (!isOutline) {
+          ctx.fillStyle = layer.color;
+          ctx.fillText(line[i], 0, 0);
+        }
+
+        ctx.restore();
+        currentDist += charW + layer.letterSpacing;
+      }
+    } else {
+      // Flat drawing fallback
+      if (layer.outlineEnabled) {
+        ctx.strokeStyle = layer.outlineColor || '#FFF';
+        ctx.lineWidth = layer.outlineWidth || 4;
+        ctx.strokeText(line, 0, curY);
+      } else if (isOutline) {
+        ctx.strokeStyle = layer.color;
+        ctx.lineWidth = Math.max(2, layer.textSize * 0.04);
+        ctx.strokeText(line, 0, curY);
+      }
+
+      if (!isOutline) {
+        ctx.fillStyle = layer.color;
+        ctx.fillText(line, 0, curY);
+      }
     }
   });
 

@@ -30,6 +30,7 @@ export interface TextLayer {
   outlineEnabled: boolean;
   outlineColor: string;
   outlineWidth: number;
+  fontWeight?: string | number;
 }
 
 export interface LogoLayer {
